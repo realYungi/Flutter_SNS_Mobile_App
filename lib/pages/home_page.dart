@@ -2,13 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/wallpost.dart';
+import 'package:uridachi/pages/profile_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final currentUser = FirebaseAuth.instance.currentUser!;
+
   final textController = TextEditingController();
 
   void signUserOut() {
@@ -22,9 +30,24 @@ class HomePage extends StatelessWidget {
         'UserEmail' : currentUser.email,
         'Message' : textController.text,
         'TimeStamp' : Timestamp.now(),
+        'Likes' : [],
       });
     }
 
+    setState(() {
+      textController.clear();
+    });
+
+  }
+
+  void goToProfilePage () {
+    Navigator.pop(context);
+    Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => const ProfilePage(),
+        )
+      );
   }
 
   @override
@@ -33,9 +56,16 @@ class HomePage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("日韓 SNS"),
-        actions: [IconButton(onPressed: signUserOut, icon: Icon(Icons.logout))],
+       
         backgroundColor: Colors.white,
       ),
+
+      drawer: MyDrawer(
+        onProfileTap: goToProfilePage,
+        onSignOut: signUserOut,
+      ),
+
+
       body: Center(
         child: Column(
           children: [
@@ -60,7 +90,8 @@ class HomePage extends StatelessWidget {
                           return WallPost(
                             message: post['Message'], 
                             user: post['UserEmail'], 
-              
+                            postId: post.id,
+                            likes: List<String>.from(post['Likes'] ?? []),
                             
                           );
         
@@ -96,7 +127,15 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            Text("Logged in as : " + currentUser.email!),
+            Text(
+              "Logged in as : " + currentUser.email!,
+              style: TextStyle(color: Colors.grey),
+              
+              ),
+
+            const SizedBox(
+              height: 50,
+            ),
           ],
         ),
       ),
