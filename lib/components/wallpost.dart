@@ -100,7 +100,7 @@ class _WallPostState extends State<WallPost> {
             ],
           ),
 
-          const SizedBox(width: 20),
+          const SizedBox(width: 40),
 
           Column(
             children: [

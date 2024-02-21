@@ -33,16 +33,20 @@ class MyDrawer extends StatelessWidget {
             ),
 
 
-            const DrawerHeader(
-              child: Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 64,
-              ),
-              
-              ),
+            
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const DrawerHeader(
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 64,
+                      ),
+                      
+                      ),
 
-              MyListTile(
+                       MyListTile(
                 icon: Icons.home, 
                 text: 'H O M E',
                 onTap: () => Navigator.pop(context),
@@ -54,12 +58,22 @@ class MyDrawer extends StatelessWidget {
                 onTap: onProfileTap,
                 ),
 
-               MyListTile(
+                MyListTile(
                 icon: Icons.person, 
                 text: 'L O G O U T',
                 onTap: onSignOut,
                 ),
 
+
+
+                  ],
+
+                ),
+
+
+                
+
+             
 
 
           ],
