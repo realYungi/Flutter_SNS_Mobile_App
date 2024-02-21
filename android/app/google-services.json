@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903937770249",
+    "project_id": "uridachi-3b4a3",
+    "storage_bucket": "uridachi-3b4a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903937770249:android:fd4c7f07feb0c79c9fc9d8",
+        "android_client_info": {
+          "package_name": "com.example.uridachi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb_QRhuDIwcR8zgPFOko6bRi8Kaat6H4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
