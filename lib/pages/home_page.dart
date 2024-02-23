@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/wallpost.dart';
+import 'package:uridachi/helper/helper_methods.dart';
 import 'package:uridachi/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -90,6 +91,7 @@ class _HomePageState extends State<HomePage> {
                           return WallPost(
                             message: post['Message'], 
                             user: post['UserEmail'], 
+                            time: formatDate(post['TimeStamp']),
                             postId: post.id,
                             likes: List<String>.from(post['Likes'] ?? []),
                             
