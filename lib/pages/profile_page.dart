@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/text_box.dart';
@@ -12,7 +13,59 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final currentUser = FirebaseAuth.instance.currentUser!;
 
-  Future<void> editField(String field) async {}
+  final usersCollection = FirebaseFirestore.instance.collection("Users");
+
+  Future<void> editField(String field) async {
+    String newValue = "";
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 185, 222, 207),
+        title: Text(
+          "Edit $field",
+          style: const TextStyle(color: Colors.white),
+        
+        ),
+        content: TextField(
+          autofocus: true,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: "Enter a new $field",
+            hintStyle: TextStyle(color: Colors.grey),
+          ),
+          onChanged: (value) {
+            newValue = value;
+          },
+        ),
+        actions: [
+          //cancel
+          TextButton(
+            onPressed: () => Navigator.pop(context), 
+            child: Text('Cancel', style: TextStyle(color: Colors.white),
+            )
+          ),
+
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(newValue), 
+            child: Text('Save', style: TextStyle(color: Colors.white),
+            )
+          ),
+
+
+          //save
+        ],
+
+      ),
+
+    );
+
+
+    if (newValue.trim().length > 0) {
+      await usersCollection.doc(currentUser.email).update({field: newValue});
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +77,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         backgroundColor: Color.fromARGB(255, 185, 222, 207),
       ),
-      body: ListView(
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance.collection("Users").doc(currentUser.email).snapshots(), 
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final userData = snapshot.data!.data() as Map<String, dynamic>;
+            return ListView(
         children: [
           const SizedBox(
             height: 50,
@@ -47,24 +105,32 @@ class _ProfilePageState extends State<ProfilePage> {
           Padding(
             padding: const EdgeInsets.only(left: 25),
             child: Text(
-              'My Information',
+              'My Details',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ),
           TextBox(
-              text: 'gagaqu',
+              text: userData['username'],
               sectionName: 'username',
               onPressed: () => editField('username')
           ),
 
 
           TextBox(
-              text: 'empty bio',
-              sectionName: 'bio',
-              onPressed: () => editField('bio')
+              text: userData['university'],
+              sectionName: 'university',
+              onPressed: () => editField('university')
           ),
 
-const SizedBox(
+
+          TextBox(
+              text: userData['nationality'],
+              sectionName: 'nationality',
+              onPressed: () => editField('nationality')
+          ),
+          
+
+          const SizedBox(
             height: 50,
           ),
 
@@ -79,6 +145,16 @@ const SizedBox(
 
 
         ],
+      );
+
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text("Error${snapshot.error}"),
+            );
+        }
+
+        return const Center(child: CircularProgressIndicator(),);
+        } 
       ),
     );
   }

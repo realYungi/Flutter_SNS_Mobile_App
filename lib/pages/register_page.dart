@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/my_button.dart';
@@ -14,7 +15,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final universityController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -46,16 +46,38 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         });
 
+    if (passwordController.text != confirmPasswordController.text) {
+      Navigator.pop(context);
+      showErrorMesssage("Passwords don't match");
+      return;
+    }
+
+
+    //creating user
     try {
-      if (passwordController.text == confirmPasswordController.text) {
+        UserCredential userCredential = 
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
-      } else {
-        showErrorMesssage("Passwords don't match!!");
-      }
-      Navigator.pop(context);
+
+    //after creating the user / create new firestore database 'users'
+
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(userCredential.user!.email)
+        .set({
+      'university' : selectedValue,
+      'username' : usernameController.text,
+      'bio' : 'Empty Bio..',
+      'nationality' : nationalityController.text,
+
+    });
+
+
+
+
+       if (context.mounted) Navigator.pop(context); 
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
 
