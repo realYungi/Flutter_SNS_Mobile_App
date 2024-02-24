@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uridachi/pages/auth_page.dart';
 import 'package:uridachi/pages/loginpage.dart';
+import 'package:uridachi/theme/dark_theme.dart';
+import 'package:uridachi/theme/light_theme.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -21,10 +23,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
       home: AuthPage(),
       debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: darkTheme,
     );
   }
 }

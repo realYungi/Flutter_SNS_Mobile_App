@@ -1,8 +1,10 @@
-import 'dart:html';
+import 'dart:js_util';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/comment_button.dart';
+import 'package:uridachi/components/delete_button.dart';
 import 'package:uridachi/components/like_button.dart';
 import 'package:uridachi/helper/helper_methods.dart';
 import 'package:uridachi/pages/profile_page.dart';
@@ -132,6 +134,51 @@ class _WallPostState extends State<WallPost> {
     );
   }
 
+  void deletePost () {
+    //show a dialog to confirm the delete process
+
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Post"),
+        content: const Text("Are you sure you want to delete it?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+
+          TextButton(onPressed: () async{
+            //delete comment from firestore
+            final commentDocs = await FirebaseFirestore.instance.
+            collection("User Posts")
+            .doc(widget.postId)
+            .collection("comment").get();
+
+            for (var doc in commentDocs.docs) {
+              await FirebaseFirestore.instance.collection("User Posts")
+              .doc(widget.postId)
+              .collection("comment")
+              .doc(doc.id)
+              .delete();
+            }
+
+
+            //delete post
+            FirebaseFirestore.instance.collection("User Posts").doc(widget.postId)
+            .delete().then((value) => print("Post Deleted"))
+            .catchError((error) => print("Failed to Delete : $error"));
+
+
+            Navigator.pop(context);
+
+
+
+          }, child: const Text("Delete")),
+        ],
+      )
+    );
+
+
+  }
+
 
 
 
@@ -155,29 +202,42 @@ class _WallPostState extends State<WallPost> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          Text(widget.message),
 
-          const SizedBox(height: 10,),
-
-          Column(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-            children: [
-              Text(
-                widget.user,
-                style: TextStyle(color: Colors.grey[400]),
+              
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+              
+                  Text(widget.message),
+              
+                  const SizedBox(height: 10,),
+                  Row(
+                children: [
+                  Text(
+                    widget.user,
+                    style: TextStyle(color: Colors.grey[400]),
+                  ),
+                  Text(
+                    " . ",
+                    style: TextStyle(color: Colors.grey[400]),
+                  ),
+                  Text(
+                    widget.time,
+                    style: TextStyle(color: Colors.grey[400]),
+                  ),
+                ],
               ),
-              Text(
-                " . ",
-                style: TextStyle(color: Colors.grey[400]),
+                ],
               ),
-              Text(
-                widget.time,
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-            ],
-          ),
+
+              if (widget.user == currenUser.email) 
+              DeleteButton(onTap: deletePost)
+
             ],
           ),
 
