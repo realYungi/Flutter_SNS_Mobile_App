@@ -25,8 +25,8 @@ class ChatService {
     final Timestamp timestamp = Timestamp.now();
     //create message
     Message newMessage = Message(
-      senderId: currentUserEmail, 
-      senderEmail: currentUserID, 
+      senderId: currentUserID, 
+      senderEmail: currentUserEmail, 
       receiverID: receiverID, 
       message: message, 
       timestamp: timestamp

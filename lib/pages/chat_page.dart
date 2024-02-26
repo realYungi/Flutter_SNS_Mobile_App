@@ -30,6 +30,9 @@ class ChatPage extends StatelessWidget {
             );
           },
         ),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.grey,
+        elevation: 0,
       ),
       body: _buildUserList(),
     );
