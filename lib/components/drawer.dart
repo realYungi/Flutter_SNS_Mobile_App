@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:uridachi/components/my_list_tile.dart';
 
 class MyDrawer extends StatelessWidget {
- 
   final void Function()? onProfileTap;
   final void Function()? onSignOut;
+
   const MyDrawer({
     super.key,
     required this.onProfileTap,
@@ -14,12 +14,12 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color.fromARGB(255, 185, 222, 207),
+      backgroundColor: const Color.fromARGB(255, 185, 222, 207),
       child: SafeArea(
         child: Column(
           children: [
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -29,60 +29,37 @@ class MyDrawer extends StatelessWidget {
                   ],
                 ),
               ),
-                 
             ),
-
-
-            
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const DrawerHeader(
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 64,
-                      ),
-                      
-                      ),
-
-                       MyListTile(
-                icon: Icons.home, 
-                text: 'H O M E',
-                onTap: () => Navigator.pop(context),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const DrawerHeader(
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 64,
+                  ),
                 ),
-              
-               MyListTile(
-                icon: Icons.person, 
-                text: 'P R O F I L E',
-                onTap: onProfileTap,
-                ),
-
                 MyListTile(
-                icon: Icons.person, 
-                text: 'L O G O U T',
-                onTap: onSignOut,
+                  icon: Icons.home,
+                  text: 'H O M E',
+                  onTap: () => Navigator.pop(context),
                 ),
-
-
-
-                  ],
-
+                MyListTile(
+                  icon: Icons.person,
+                  text: 'P R O F I L E',
+                  onTap: onProfileTap,
                 ),
-
-
-                
-
-             
-
-
+                MyListTile(
+                  icon: Icons.person,
+                  text: 'L O G O U T',
+                  onTap: onSignOut,
+                ),
+              ],
+            ),
           ],
         ),
-
-
-  
       ),
-
     );
   }
 }

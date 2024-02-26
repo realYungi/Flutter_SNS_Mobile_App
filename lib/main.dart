@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uridachi/pages/auth_page.dart';
-import 'package:uridachi/pages/loginpage.dart';
-import 'package:uridachi/theme/dark_theme.dart';
-import 'package:uridachi/theme/light_theme.dart';
+
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -24,11 +22,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Uridachi App',
       home: AuthPage(),
       debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
+
     );
   }
 }

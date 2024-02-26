@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +5,6 @@ import 'package:uridachi/components/comment_button.dart';
 import 'package:uridachi/components/delete_button.dart';
 import 'package:uridachi/components/like_button.dart';
 import 'package:uridachi/helper/helper_methods.dart';
-import 'package:uridachi/pages/profile_page.dart';
 import 'package:uridachi/components/comment.dart';
 
 
@@ -95,10 +92,10 @@ class _WallPostState extends State<WallPost> {
     showDialog(
       context: context, 
       builder: (context) => AlertDialog(
-        title: Text("Add Comment"),
+        title: const Text("Add Comment"),
         content: TextField(
           controller: _commentTextController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: "Write a comment",
 
           ),
@@ -114,7 +111,7 @@ class _WallPostState extends State<WallPost> {
 
               _commentTextController.clear();
             },
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
 
             TextButton(
@@ -125,7 +122,7 @@ class _WallPostState extends State<WallPost> {
               _commentTextController.clear();
 
             },
-            child: Text("Post Message"),
+            child: const Text("Post Message"),
           ),
 
 
@@ -192,8 +189,8 @@ class _WallPostState extends State<WallPost> {
         borderRadius: BorderRadius.circular(20),
 
       ),
-      margin: EdgeInsets.only(top: 25, left: 25, right: 25),
-      padding: EdgeInsets.all(25),
+      margin: const EdgeInsets.only(top: 25, left: 25, right: 25),
+      padding: const EdgeInsets.all(25),
       
       
       
@@ -260,7 +257,7 @@ class _WallPostState extends State<WallPost> {
               
                   Text(
                     widget.likes.length.toString(),
-                    style: TextStyle(color: Colors.grey,),
+                    style: const TextStyle(color: Colors.grey,),
                     
                     ),
                 ],
@@ -278,7 +275,7 @@ class _WallPostState extends State<WallPost> {
 
 
               
-                  Text(
+                  const Text(
                     '0',
                     style: TextStyle(color: Colors.grey,),
                     

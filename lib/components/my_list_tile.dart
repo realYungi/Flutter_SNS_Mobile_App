@@ -22,7 +22,7 @@ class MyListTile extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10.0),
       child: ListTile(
         leading: Icon(icon, color: Colors.white,),
-        title: Text(text, style: TextStyle(color: Colors.white),),
+        title: Text(text, style: const TextStyle(color: Colors.white),),
         onTap: onTap,
       ),
     );

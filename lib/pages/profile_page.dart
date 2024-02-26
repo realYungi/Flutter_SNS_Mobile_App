@@ -21,7 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color.fromARGB(255, 185, 222, 207),
+        backgroundColor: const Color.fromARGB(255, 185, 222, 207),
         title: Text(
           "Edit $field",
           style: const TextStyle(color: Colors.white),
@@ -29,10 +29,10 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         content: TextField(
           autofocus: true,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: "Enter a new $field",
-            hintStyle: TextStyle(color: Colors.grey),
+            hintStyle: const TextStyle(color: Colors.grey),
           ),
           onChanged: (value) {
             newValue = value;
@@ -42,13 +42,13 @@ class _ProfilePageState extends State<ProfilePage> {
           //cancel
           TextButton(
             onPressed: () => Navigator.pop(context), 
-            child: Text('Cancel', style: TextStyle(color: Colors.white),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white),
             )
           ),
 
           TextButton(
             onPressed: () => Navigator.of(context).pop(newValue), 
-            child: Text('Save', style: TextStyle(color: Colors.white),
+            child: const Text('Save', style: TextStyle(color: Colors.white),
             )
           ),
 
@@ -61,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
 
-    if (newValue.trim().length > 0) {
+    if (newValue.trim().isNotEmpty) {
       await usersCollection.doc(currentUser.email).update({field: newValue});
     }
 
@@ -71,11 +71,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Profile Page",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 185, 222, 207),
+        backgroundColor: const Color.fromARGB(255, 185, 222, 207),
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection("Users").doc(currentUser.email).snapshots(), 
@@ -87,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(
             height: 50,
           ),
-          Icon(
+          const Icon(
             Icons.person,
             size: 72,
           ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uridachi/components/my_button.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/my_dropdown_bar.dart';
+import 'package:uridachi/services/auth/auth_services.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -20,6 +21,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final confirmPasswordController = TextEditingController();
   final nationalityController = TextEditingController();
   final usernameController = TextEditingController();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? selectedValue;
   List<String> options = [
@@ -38,6 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void signUserUp() async {
+
     showDialog(
         context: context,
         builder: (context) {
@@ -61,23 +65,29 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
+
+   
+
+
     //after creating the user / create new firestore database 'users'
 
-    FirebaseFirestore.instance
+    _firestore
         .collection("Users")
         .doc(userCredential.user!.email)
         .set({
-      'university' : selectedValue,
-      'username' : usernameController.text,
-      'bio' : 'Empty Bio..',
-      'nationality' : nationalityController.text,
+          'uid' : userCredential.user!.uid,
+          'email' : emailController.text,
+          'university' : selectedValue,
+          'username' : usernameController.text,
+          'bio' : 'Empty Bio..',
+          'nationality' : nationalityController.text,
 
     });
 
 
 
 
-       if (context.mounted) Navigator.pop(context); 
+      if (context.mounted) Navigator.pop(context); 
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
 

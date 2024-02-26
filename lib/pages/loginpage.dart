@@ -43,12 +43,12 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return const AlertDialog(
           backgroundColor: Color.fromARGB(255, 155, 255, 178),
           title: Center(
               child: Text(
             "Invalid User",
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
           )),
         );
       },
@@ -69,10 +69,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 185, 222, 207),
+      backgroundColor: const Color.fromARGB(255, 185, 222, 207),
       body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
