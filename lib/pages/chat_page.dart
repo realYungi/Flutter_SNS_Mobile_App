@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/user_tile.dart';
+import 'package:uridachi/mainpage.dart';
 import 'package:uridachi/pages/chat_view_page.dart';
 import 'package:uridachi/pages/home_page.dart';
-import 'package:uridachi/pages/profile_page.dart';
 import 'package:uridachi/services/auth/auth_services.dart';
 import 'package:uridachi/services/chat/chat_service.dart';
 
@@ -26,7 +24,7 @@ class ChatPage extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(builder: (context) => MainPage()),
             );
           },
         ),

@@ -5,6 +5,7 @@ import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/wallpost.dart';
 import 'package:uridachi/helper/helper_methods.dart';
+import 'package:uridachi/pages/auth_page.dart';
 import 'package:uridachi/pages/chat_page.dart';
 import 'package:uridachi/pages/profile_page.dart';
 
@@ -20,9 +21,16 @@ class _HomePageState extends State<HomePage> {
 
   final textController = TextEditingController();
 
-  void signUserOut() {
-    FirebaseAuth.instance.signOut();
-  }
+ void signUserOut() {
+  FirebaseAuth.instance.signOut().then((_) {
+    // Pop all routes off the stack and navigate to the AuthPage
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AuthPage()),
+      (Route<dynamic> route) => false,
+    );
+  });
+}
+
 
   void postMessage() {
     //making sure only to post contents where the textfields are filled in

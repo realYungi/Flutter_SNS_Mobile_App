@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:uridachi/components/my_button.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/my_dropdown_bar.dart';
-import 'package:uridachi/services/auth/auth_services.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uridachi/mainpage.dart';
 import 'package:uridachi/pages/auth_page.dart';
 
 import 'firebase_options.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Uridachi App',
-      home: AuthPage(),
+      home: MainPage(),
       debugShowCheckedModeBanner: false,
 
     );
