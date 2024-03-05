@@ -1,14 +1,20 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:uridachi/methods/firestore_methods.dart';
 
 
 import 'package:uridachi/utils/utils.dart';
+import 'package:uuid/uuid.dart';
 
 
 class AddPost extends StatefulWidget {
@@ -21,8 +27,10 @@ class AddPost extends StatefulWidget {
 class _AddPostState extends State<AddPost> {
 
 
+  final currentUser = FirebaseAuth.instance.currentUser!;
   final TextEditingController _descriptionController = TextEditingController();
-
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
   List<File> selectedImages = [];
@@ -30,6 +38,35 @@ class _AddPostState extends State<AddPost> {
 
 
   List<Uint8List>? _files;
+
+
+  void showSnackBar(String message, BuildContext context) {
+  final snackBar = SnackBar(content: Text(message));
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+
+  void postImage (
+    String uid,
+    String username,
+  ) async {
+    
+    //이 이미지들 다 store 하는 방법 터득해야함
+    try {
+      String res = await FirestoreMethods().uploadPost(_descriptionController.text, selectedImages, uid, username);
+
+      if (res == "success") {
+        showSnackBar('Posted!', context);
+      } else {
+        showSnackBar(res, context);
+      }
+
+    } catch(e) {
+      showSnackBar(e.toString(), context);
+
+    }
+
+}
 
   _selectImage(BuildContext context) async {
   // Show dialog to choose the image
@@ -60,6 +97,90 @@ class _AddPostState extends State<AddPost> {
 }
 
 
+Future<Map<String, dynamic>?> fetchUserData(String uid) async {
+  try {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+    if (userDoc.exists) {
+      return userDoc.data() as Map<String, dynamic>?;
+    }
+    return null;
+  } catch (e) {
+    print("Error fetching user data: $e");
+    return null;
+  }
+}
+
+
+Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPost) async {
+    Reference ref = _storage.ref().child(childName).child(_auth.currentUser!.uid);
+
+    if(isPost) {
+      String id = const Uuid().v1();
+      ref.child(id);
+    }
+
+    UploadTask uploadTask = ref.putData(file);
+
+    TaskSnapshot snap = await uploadTask;
+    String downloadUrl = await snap.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+
+Future<void> createPost() async {
+  if (_descriptionController.text.isNotEmpty) {
+    // Ensure the user is logged in
+    if (currentUser != null) {
+      try {
+        // Retrieve current user's UID
+        final String uid = currentUser.uid;
+        
+        // Use email or a placeholder if not available
+        final String userEmail = currentUser.email ?? "No email";
+
+        List<String> imageUrls = [];
+        for (var image in selectedImages) {
+          final Uint8List imageData = await image.readAsBytes();
+          String imageUrl = await uploadImageToStorage('posts', imageData, true);
+          imageUrls.add(imageUrl);
+        }
+
+        Map<String, dynamic> postData = {
+          'description': _descriptionController.text,
+          'uid': uid,
+          'email': userEmail, // Here we're using the user's email
+          'imageUrls': imageUrls,
+          'datePublished': FieldValue.serverTimestamp(),
+          'likes': [],
+        };
+
+        await FirebaseFirestore.instance.collection("Social Posts").add(postData);
+
+        showSnackBar("Posted successfully!", context);
+        _descriptionController.clear();
+        setState(() {
+          selectedImages.clear();
+        });
+
+      } catch (e) {
+        showSnackBar(e.toString(), context);
+      }
+    } else {
+      showSnackBar("User not logged in.", context);
+    }
+  } else {
+    showSnackBar("Please enter a description.", context);
+  }
+}
+
+
+
+
+@override
+void dispose() {
+  super.dispose();
+  _descriptionController.dispose();
+}
 
 
   @override
@@ -72,7 +193,8 @@ class _AddPostState extends State<AddPost> {
         title: const Text("Add Post"),
         actions: [
           TextButton(
-              onPressed: () {},
+              onPressed: createPost,
+
               child: const Text(
                 "Post",
                 style: TextStyle(
@@ -217,7 +339,7 @@ class _AddPostState extends State<AddPost> {
             
             
             
-            
+
                  
             
             

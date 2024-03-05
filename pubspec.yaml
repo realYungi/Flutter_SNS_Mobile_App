@@ -43,6 +43,8 @@ dependencies:
   multi_image_picker: ^4.8.01
   multiple_images_picker: ^1.0.1
   foundation: ^0.0.5
+  firebase_storage: ^11.6.7
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:
