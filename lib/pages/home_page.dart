@@ -3,11 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
+import 'package:uridachi/components/social_post.dart';
 import 'package:uridachi/components/wallpost.dart';
 import 'package:uridachi/helper/helper_methods.dart';
 import 'package:uridachi/pages/auth_page.dart';
 import 'package:uridachi/pages/chat_page.dart';
 import 'package:uridachi/pages/profile_page.dart';
+
+import 'package:intl/intl.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,21 +36,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 
-  void postMessage() {
-    //making sure only to post contents where the textfields are filled in
-    if (textController.text.isNotEmpty) {
-      FirebaseFirestore.instance.collection("User Posts").add({
-        'UserEmail': currentUser.email,
-        'Message': textController.text,
-        'TimeStamp': Timestamp.now(),
-        'Likes': [],
-      });
-    }
-
-    setState(() {
-      textController.clear();
-    });
-  }
+ 
 
   void goToProfilePage() {
     Navigator.pop(context);
@@ -90,58 +80,41 @@ class _HomePageState extends State<HomePage> {
           children: [
             Expanded(
               child: StreamBuilder(
-                //ordering by the time the posts have been posted
-                stream: FirebaseFirestore.instance
-                    .collection("User Posts")
-                    .orderBy(
-                      "TimeStamp",
-                      descending: false,
-                    )
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        final post = snapshot.data!.docs[index];
-                        return WallPost(
-                          message: post['Message'],
-                          user: post['UserEmail'],
-                          time: formatDate(post['TimeStamp']),
-                          postId: post.id,
-                          likes: List<String>.from(post['Likes'] ?? []),
-                        );
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error:${snapshot.error}'),
-                    );
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
-              ),
+  stream: FirebaseFirestore.instance.collection("Social Posts").snapshots(),
+  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.hasData) {
+      return ListView.builder(
+        itemCount: snapshot.data!.docs.length,
+        itemBuilder: (context, index) {
+          var post = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+          var postId = snapshot.data!.docs[index].id;
+          
+          // Directly use the email from the post, assuming it's stored there
+          // Alternatively, use the email from the FirebaseAuth instance if the post data doesn't include it
+          var email = post['email'] ?? FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
+
+          // Now you can directly use the email as the username
+          return SocialPost(
+            description: post['description'],
+            user: email,  // Use the email as the user identifier
+            time: DateFormat('yyyy-MM-dd – kk:mm').format((post['datePublished'] as Timestamp).toDate()),
+            postId: postId,
+            likes: List<String>.from(post['likes'] ?? []),
+            imageUrls: List<String>.from(post['imageUrls'] ?? []),
+          );
+        },
+      );
+    } else if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
+  },
+)
+
+
             ),
-            Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: MyTextField(
-                      controller: textController,
-                      hintText: 'Write something on the wall',
-                      obscureText: false,
-                      height: 30,
-                    ),
-                  ),
-                  IconButton(
-                      onPressed: postMessage,
-                      icon: const Icon(Icons.arrow_circle_up)),
-                ],
-              ),
-            ),
+            
             Text(
               "Logged in as : ${currentUser.email!}",
               style: const TextStyle(color: Colors.grey),

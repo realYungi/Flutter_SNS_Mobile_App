@@ -134,15 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 50,
           ),
 
-          
-          Padding(
-            padding: const EdgeInsets.only(left: 25),
-            child: Text(
-              'My Posts',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ),
-
+        
 
         ],
       );

@@ -217,16 +217,7 @@ void dispose() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //post details
-                    CircleAvatar(
-                      radius: 32, // Adjust the radius to fit your design
-                      backgroundColor: const Color.fromARGB(255, 182, 182, 182), // Choose a background color
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                          size: 64, // Adjust the size of the icon as needed
-                      ),
-                    ),
-            
+                  
                     
             
             

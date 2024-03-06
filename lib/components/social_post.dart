@@ -15,6 +15,8 @@ class SocialPost extends StatefulWidget {
     final String time;
     final String postId;
     final List<String> likes;
+    final List<String> imageUrls;
+
 
 
 
@@ -25,6 +27,7 @@ class SocialPost extends StatefulWidget {
     required this.time,
     required this.postId,
     required this.likes,
+    required this.imageUrls,
  
 });
 
@@ -36,6 +39,7 @@ class _SocialPostState extends State<SocialPost> {
 
   final currentUser = FirebaseAuth.instance.currentUser!;
   bool isLiked = false;
+  final _commentTextController = TextEditingController();
 
   @override
   void initState () {
@@ -49,7 +53,7 @@ class _SocialPostState extends State<SocialPost> {
     });
 
     DocumentReference postRef = 
-    FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
+    FirebaseFirestore.instance.collection('Social Posts').doc(widget.postId);
 
     //if liked, add the user's email to the Likes field
     if (isLiked) {
@@ -63,6 +67,66 @@ class _SocialPostState extends State<SocialPost> {
 
     }
   }
+
+
+  void addComment (String commentText) {
+    //saving to firestore under "comments section"
+    FirebaseFirestore.instance
+    .collection("Social Posts")
+    .doc(widget.postId)
+    .collection("comment")
+    .add({
+      "CommentText" : commentText,
+      "CommentedBy" : currentUser.email,
+      "CommentTime" : Timestamp.now(),
+    });
+
+  } 
+
+
+  void showCommentDialog() {
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        title: const Text("Add Comment"),
+        content: TextField(
+          controller: _commentTextController,
+          decoration: const InputDecoration(
+            hintText: "Write a comment",
+
+          ),
+          
+        ),
+
+        actions: [
+        
+
+          TextButton(
+            onPressed: (){
+              Navigator.pop(context);
+
+              _commentTextController.clear();
+            },
+            child: const Text("Cancel"),
+          ),
+
+            TextButton(
+            onPressed: () {
+              addComment(_commentTextController.text);
+              Navigator.pop(context);
+
+              _commentTextController.clear();
+
+            },
+            child: const Text("Post Message"),
+          ),
+
+
+        ],
+      ),
+    );
+  }
+
 
 
   void deletePost () {
@@ -79,12 +143,12 @@ class _SocialPostState extends State<SocialPost> {
           TextButton(onPressed: () async{
             //delete comment from firestore
             final commentDocs = await FirebaseFirestore.instance.
-            collection("User Posts")
+            collection("Social Posts")
             .doc(widget.postId)
             .collection("comment").get();
 
             for (var doc in commentDocs.docs) {
-              await FirebaseFirestore.instance.collection("User Posts")
+              await FirebaseFirestore.instance.collection("Social Posts")
               .doc(widget.postId)
               .collection("comment")
               .doc(doc.id)
@@ -93,7 +157,7 @@ class _SocialPostState extends State<SocialPost> {
 
 
             //delete post
-            FirebaseFirestore.instance.collection("User Posts").doc(widget.postId)
+            FirebaseFirestore.instance.collection("Social Posts").doc(widget.postId)
             .delete().then((value) => print("Post Deleted"))
             .catchError((error) => print("Failed to Delete : $error"));
 
@@ -126,6 +190,7 @@ class _SocialPostState extends State<SocialPost> {
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
 
 
@@ -139,7 +204,7 @@ class _SocialPostState extends State<SocialPost> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
               
-                  Text(widget.description),
+                  Text(widget.description, style: TextStyle(fontSize: 25),),
               
                   const SizedBox(height: 10,),
                   Row(
@@ -170,6 +235,31 @@ class _SocialPostState extends State<SocialPost> {
           const SizedBox(height: 10,),
 
 
+          if (widget.imageUrls.isNotEmpty)
+  Container(
+    height: 200, 
+    // Set a fixed height for the container
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal, // Make the list view scrollable horizontally
+      itemCount: widget.imageUrls.length, // The number of items in the list
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(right: 8.0), // Add some spacing between images
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8), // Optional: Clip the images with a border radius
+            child: Image.network(
+              widget.imageUrls[index], // Load the image from the URL
+              width: 200, // Set a fixed width for each image
+              fit: BoxFit.cover, // Cover the bounds of the container
+            ),
+          ),
+        );
+      },
+    ),
+  ),
+
+            const SizedBox(height: 25), 
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -194,31 +284,7 @@ class _SocialPostState extends State<SocialPost> {
 
               const SizedBox(width: 10), 
               //comment
-              Column(
-                children: [
-
-                  //like
-                 CommentButton(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CommentScreen()),
-    );
-  },
-),
-
-              
-                  const SizedBox(height: 5,),
-
-
-              
-                  const Text(
-                    '0',
-                    style: TextStyle(color: Colors.grey,),
-                    
-                    ),
-                ],
-              ),
+         
             ],
           ),
 

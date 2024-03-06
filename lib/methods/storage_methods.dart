@@ -10,12 +10,14 @@ class StorageMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPost) async {
-    Reference ref = _storage.ref().child(childName).child(_auth.currentUser!.uid);
+    String email = _auth.currentUser!.email!;
+    // Sanitize the email to use in the storage path
 
-    if(isPost) {
-      String id = const Uuid().v1();
-      ref.child(id);
-    }
+
+    // Generate a unique ID for each image
+    String id = const Uuid().v1();
+    // Use the sanitized email and unique ID as part of the file path
+    Reference ref = _storage.ref().child(childName).child(email).child(id);
 
     UploadTask uploadTask = ref.putData(file);
 
@@ -23,5 +25,4 @@ class StorageMethods {
     String downloadUrl = await snap.ref.getDownloadURL();
     return downloadUrl;
   }
-
 }

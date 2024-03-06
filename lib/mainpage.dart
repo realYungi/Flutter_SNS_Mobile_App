@@ -66,10 +66,10 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.search,
+              Icons.chat,
               color: _page == 1 ? selectedColor : unselectedColor,
             ),
-            label: 'Search',
+            label: 'Chat',
             backgroundColor: Colors.white,
           ),
           BottomNavigationBarItem(

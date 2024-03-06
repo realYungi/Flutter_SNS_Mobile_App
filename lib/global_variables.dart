@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:uridachi/pages/chat_page.dart';
 import 'package:uridachi/pages/gourmet_page.dart';
 import 'package:uridachi/pages/home_page.dart';
+import 'package:uridachi/pages/profile_page.dart';
 import 'package:uridachi/screen/add_post.dart';
 
-const homeScreenItems = [
+final homeScreenItems = [
   HomePage(),
-  Text('search'),
+  ChatPage(),
   AddPost(),
   GourmetPage(),
-  Text('f'),
+  ProfilePage(),
 ];
