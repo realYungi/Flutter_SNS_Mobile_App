@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:uridachi/methods/firestore_methods.dart';
+import 'package:uridachi/methods/storage_methods.dart';
 
 
 import 'package:uridachi/utils/utils.dart';
@@ -46,27 +47,6 @@ class _AddPostState extends State<AddPost> {
 }
 
 
-  void postImage (
-    String uid,
-    String username,
-  ) async {
-    
-    //이 이미지들 다 store 하는 방법 터득해야함
-    try {
-      String res = await FirestoreMethods().uploadPost(_descriptionController.text, selectedImages, uid, username);
-
-      if (res == "success") {
-        showSnackBar('Posted!', context);
-      } else {
-        showSnackBar(res, context);
-      }
-
-    } catch(e) {
-      showSnackBar(e.toString(), context);
-
-    }
-
-}
 
   _selectImage(BuildContext context) async {
   // Show dialog to choose the image
@@ -128,51 +108,39 @@ Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPos
 
 
 Future<void> createPost() async {
-  if (_descriptionController.text.isNotEmpty) {
-    // Ensure the user is logged in
-    if (currentUser != null) {
-      try {
-        // Retrieve current user's UID
-        final String uid = currentUser.uid;
-        
-        // Use email or a placeholder if not available
-        final String userEmail = currentUser.email ?? "No email";
+  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null) {
+    try {
+      // Convert File images to Uint8List
+      List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
 
-        List<String> imageUrls = [];
-        for (var image in selectedImages) {
-          final Uint8List imageData = await image.readAsBytes();
-          String imageUrl = await uploadImageToStorage('posts', imageData, true);
-          imageUrls.add(imageUrl);
-        }
+      // Upload images and get their URLs
+      StorageMethods storageMethods = StorageMethods();
+      List<String> imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'posts');
 
-        Map<String, dynamic> postData = {
-          'description': _descriptionController.text,
-          'uid': uid,
-          'email': userEmail, // Here we're using the user's email
-          'imageUrls': imageUrls,
-          'datePublished': FieldValue.serverTimestamp(),
-          'likes': [],
-        };
+      // Construct post data
+      Map<String, dynamic> postData = {
+        'description': _descriptionController.text,
+        'uid': _auth.currentUser!.uid,
+        'email': _auth.currentUser!.email, // Using the user's email
+        'imageUrls': imageUrls,
+        'datePublished': FieldValue.serverTimestamp(),
+        'likes': [],
+      };
 
-        await FirebaseFirestore.instance.collection("Social Posts").add(postData);
+      // Save the post data to Firestore
+      await FirebaseFirestore.instance.collection("Social Posts").add(postData);
+      showSnackBar("Posted successfully!", context);
 
-        showSnackBar("Posted successfully!", context);
-        _descriptionController.clear();
-        setState(() {
-          selectedImages.clear();
-        });
-
-      } catch (e) {
-        showSnackBar(e.toString(), context);
-      }
-    } else {
-      showSnackBar("User not logged in.", context);
+      // Reset state
+      _descriptionController.clear();
+      setState(() => selectedImages.clear());
+    } catch (e) {
+      showSnackBar(e.toString(), context);
     }
   } else {
-    showSnackBar("Please enter a description.", context);
+    showSnackBar("Please enter a description and ensure you're logged in.", context);
   }
 }
-
 
 
 

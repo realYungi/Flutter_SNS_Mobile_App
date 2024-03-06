@@ -52,25 +52,37 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("日韓 SNS"),
-        backgroundColor: Colors.white,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.chat),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ChatPage()), 
-              );
-            },
-
-            color:
-                Colors.black, // Set the icon color to match your AppBar's theme
-          ),
-        ],
+    title: const Text("日韓 SNS"),
+    backgroundColor: Colors.white,
+    actions: <Widget>[
+      IconButton(
+        icon: const Icon(Icons.chat),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatPage()),
+          );
+        },
+        color: Colors.black, // Set the icon color to match your AppBar's theme
       ),
+    ],
+    bottom: PreferredSize(
+      preferredSize: Size.fromHeight(4.0), // Height of the gradient line
+      child: Container(
+        height: 4.0, // Height of the gradient line
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF4FD9B8), // Start color of the gradient
+              Color(0xFFE3FFCD), // End color of the gradient
+            ],
+          ),
+        ),
+      ),
+    ),
+  ),
       drawer: MyDrawer(
         onProfileTap: goToProfilePage,
         onSignOut: signUserOut,

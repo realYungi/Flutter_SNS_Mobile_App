@@ -200,31 +200,36 @@ class _SocialPostState extends State<SocialPost> {
             children: [
               
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              
-                  Text(widget.description, style: TextStyle(fontSize: 25),),
-              
-                  const SizedBox(height: 10,),
-                  Row(
-                children: [
-                  Text(
-                    widget.user,
-                    style: TextStyle(color: Colors.grey[400]),
-                  ),
-                  Text(
-                    " . ",
-                    style: TextStyle(color: Colors.grey[400]),
-                  ),
-                  Text(
-                    widget.time,
-                    style: TextStyle(color: Colors.grey[400]),
-                  ),
-                ],
-              ),
-                ],
-              ),
+             Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Center( // Center widget added here
+      child: Text(
+        widget.description,
+        style: TextStyle(fontSize: 25),
+        textAlign: TextAlign.center, // Align text center inside the Text widget
+      ),
+    ),
+    const SizedBox(height: 10,),
+    Row(
+      children: [
+        Text(
+          widget.user,
+          style: TextStyle(color: Colors.grey[400]),
+        ),
+        Text(
+          " . ",
+          style: TextStyle(color: Colors.grey[400]),
+        ),
+        Text(
+          widget.time,
+          style: TextStyle(color: Colors.grey[400]),
+        ),
+      ],
+    ),
+  ],
+),
+
 
               if (widget.user == currentUser.email) 
               DeleteButton(onTap: deletePost)
@@ -232,7 +237,7 @@ class _SocialPostState extends State<SocialPost> {
             ],
           ),
 
-          const SizedBox(height: 10,),
+          const SizedBox(height: 20,),
 
 
           if (widget.imageUrls.isNotEmpty)
