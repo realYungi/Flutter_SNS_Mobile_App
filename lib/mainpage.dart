@@ -81,7 +81,7 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.food_bank,               color: _page == 3 ? selectedColor: unselectedColor,
 ),
-            label: 'Gournmet',
+            label: 'Gourmet',
             backgroundColor: Colors.white,
           ),
           BottomNavigationBarItem(

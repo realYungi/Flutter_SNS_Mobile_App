@@ -36,35 +36,36 @@ class SocialPost extends StatefulWidget {
 }
 
 class _SocialPostState extends State<SocialPost> {
-
-  final currentUser = FirebaseAuth.instance.currentUser!;
+  late List<String> likes;
   bool isLiked = false;
+  final currentUser = FirebaseAuth.instance.currentUser!;
+
   final _commentTextController = TextEditingController();
 
   @override
   void initState () {
     super.initState();
-    isLiked = widget.likes.contains(currentUser.email);
+    likes = List.from(widget.likes); // Initialize local likes list
+    isLiked = likes.contains(currentUser.email);
   }
 
-  void toggleLike() {
+ void toggleLike() async {
+    final userEmail = currentUser.email ?? "";
     setState(() {
       isLiked = !isLiked;
+      if (isLiked) {
+        likes.add(userEmail);
+      } else {
+        likes.remove(userEmail);
+      }
     });
 
-    DocumentReference postRef = 
-    FirebaseFirestore.instance.collection('Social Posts').doc(widget.postId);
+    DocumentReference postRef = FirebaseFirestore.instance.collection('Social Posts').doc(widget.postId);
 
-    //if liked, add the user's email to the Likes field
     if (isLiked) {
-      postRef.update({
-        'Likes' : FieldValue.arrayUnion([currentUser.email])
-      });
+      postRef.update({'Likes': FieldValue.arrayUnion([userEmail])});
     } else {
-      postRef.update({
-        'Likes' : FieldValue.arrayRemove([currentUser.email])
-      });
-
+      postRef.update({'Likes': FieldValue.arrayRemove([userEmail])});
     }
   }
 
@@ -203,13 +204,18 @@ class _SocialPostState extends State<SocialPost> {
              Column(
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
-    Center( // Center widget added here
-      child: Text(
-        widget.description,
-        style: TextStyle(fontSize: 25),
-        textAlign: TextAlign.center, // Align text center inside the Text widget
-      ),
+   
+  Container(
+    
+    width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
+    child: Text(
+      widget.description,
+      style: TextStyle(fontSize: 20),
+      maxLines: null, // Allow for any number of lines
     ),
+
+),
+
     const SizedBox(height: 10,),
     Row(
       children: [
@@ -279,15 +285,17 @@ class _SocialPostState extends State<SocialPost> {
               
                   const SizedBox(height: 5,),
               
-                  Text(
-                    widget.likes.length.toString(),
-                    style: const TextStyle(color: Colors.grey,),
-                    
-                    ),
+            
                 ],
               ),
 
-              const SizedBox(width: 10), 
+
+              const SizedBox(width: 10,),
+
+
+              
+              
+
               //comment
          
             ],

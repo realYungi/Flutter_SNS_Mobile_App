@@ -17,17 +17,7 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Chat Page"),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-          ),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MainPage()),
-            );
-          },
-        ),
+        
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0,

@@ -40,6 +40,7 @@ class _AddPostState extends State<AddPost> {
 
   List<Uint8List>? _files;
 
+  String? _selectedCategory;
 
   void showSnackBar(String message, BuildContext context) {
   final snackBar = SnackBar(content: Text(message));
@@ -157,22 +158,25 @@ void dispose() {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text("Add Post"),
-        actions: [
-          TextButton(
-              onPressed: createPost,
-
-              child: const Text(
-                "Post",
-                style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              )),
-        ],
+    title: const Text("Add Post"),
+    backgroundColor: Colors.white,
+    bottom: PreferredSize(
+      preferredSize: Size.fromHeight(4.0), // Height of the gradient line
+      child: Container(
+        height: 4.0, // Height of the gradient line
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF4FD9B8), // Start color of the gradient
+              Color(0xFFE3FFCD), // End color of the gradient
+            ],
+          ),
+        ),
       ),
+    ),
+  ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
@@ -180,53 +184,70 @@ void dispose() {
             child: Column(
               
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //post details
-                  
-                    
+               
             
-            
-                          //여기다가 쓰는게 밑에 listview로 나와야함
-                     
-                      
-            
-                    
-            
-                    const Divider(),
-            
-                   
-                  ],
+                
+
+
+                    Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Set the background color to a shade of gray.
+                  borderRadius: BorderRadius.circular(20), // Set the border radius.
+                  border: Border.all(
+                    width: 1, // Add border width
+                  ),
                 ),
-            
-                 SizedBox(
-                      height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                margin: const EdgeInsets.only(top: 20), // Add some margin at the top
+                child: DropdownButtonFormField<String>(
+                 
+                  value: _selectedCategory,
+                  hint: Text("Select a category"),
+                  items: ["Social", "Gourmet"].map((String category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedCategory = newValue;
+                    });
+                  },
+                ),
+              ),
+            SizedBox(
+                      height: 20,
                     ),
             
             
-            
-            
-                 Container(
-                   child: Column(
-                     children: [
-                       SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4,
-                            child: TextField(
-                              controller: _descriptionController,
-                              decoration: const InputDecoration(
-                                hintText: "Write your content..",
-                                border: InputBorder.none,
-                              ),
-                              maxLines: 8,
-                            ),
-                          ),
-                     ],
-                   ),
-                 ),
-            
-            
+            Container(
+  decoration: BoxDecoration(
+    color: Colors.grey[200], // Set the background color to a shade of gray.
+    borderRadius: BorderRadius.circular(20), // Set the border radius.
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7, // Consider using full width for true centering if needed.
+          child: TextField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(
+              hintText: "Write your content..",
+              border: InputBorder.none,
+              // Centering the hint text as well.
+            ),
+            textAlign: TextAlign.center, // Centering the text that user enters.
+            maxLines: 8,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
                
             
             
@@ -240,7 +261,7 @@ void dispose() {
             
                     
              SizedBox(
-                      height: 20,
+                      height: 30,
                     ),
             
                     
@@ -249,7 +270,7 @@ void dispose() {
                     ElevatedButton(
 			style: ButtonStyle(
 				backgroundColor: MaterialStateProperty.all(Colors.green)),
-			child: const Text('Select Image from Gallery and Camera'),
+			child: const Text('Select Image from Gallery and Camera',style: TextStyle(color: Colors.white),),
 			onPressed: () {
 				getImages();
 			},
@@ -262,9 +283,9 @@ void dispose() {
             
 
       Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(5.0),
         child: SizedBox(
-          height: 300, // Specify a fixed height for the GridView container
+          height: 200, // Specify a fixed height for the GridView container
           child: GridView.builder(
             itemCount: selectedImages.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -292,9 +313,25 @@ void dispose() {
         ),
       ),
 
+
+     
+
+
+
+
 			
             
-            
+             ElevatedButton(
+  style: ButtonStyle(
+    backgroundColor: MaterialStateProperty.all(Colors.green),
+  ),
+  child: const Text('Post', style: TextStyle(color: Colors.white),),
+  onPressed: () {
+    createPost(); // Corrected method call
+  },
+),
+
+
             
             
             
