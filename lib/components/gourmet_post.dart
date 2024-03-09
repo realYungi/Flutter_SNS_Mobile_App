@@ -11,7 +11,7 @@ import 'package:clay_containers/clay_containers.dart';
 
 
 //where our posts are posted
-class SocialPost extends StatefulWidget {
+class GourmetPost extends StatefulWidget {
     final String description;
     final String user;
     final String time;
@@ -22,7 +22,7 @@ class SocialPost extends StatefulWidget {
 
 
 
-  const SocialPost({
+  const GourmetPost({
     super.key,
     required this.description,
     required this.user,
@@ -34,10 +34,10 @@ class SocialPost extends StatefulWidget {
 });
 
   @override
-  State<SocialPost> createState() => _SocialPostState();
+  State<GourmetPost> createState() => _GourmetPostState();
 }
 
-class _SocialPostState extends State<SocialPost> {
+class _GourmetPostState extends State<GourmetPost> {
   late List<String> likes;
   bool isLiked = false;
   final currentUser = FirebaseAuth.instance.currentUser!;
@@ -62,7 +62,7 @@ class _SocialPostState extends State<SocialPost> {
       }
     });
 
-    DocumentReference postRef = FirebaseFirestore.instance.collection('Social Posts').doc(widget.postId);
+    DocumentReference postRef = FirebaseFirestore.instance.collection('Gourmet Posts').doc(widget.postId);
 
     if (isLiked) {
       postRef.update({'Likes': FieldValue.arrayUnion([userEmail])});
@@ -75,7 +75,7 @@ class _SocialPostState extends State<SocialPost> {
   void addComment (String commentText) {
     //saving to firestore under "comments section"
     FirebaseFirestore.instance
-    .collection("Social Posts")
+    .collection("Gourmet Posts")
     .doc(widget.postId)
     .collection("comment")
     .add({
@@ -146,12 +146,12 @@ class _SocialPostState extends State<SocialPost> {
           TextButton(onPressed: () async{
             //delete comment from firestore
             final commentDocs = await FirebaseFirestore.instance.
-            collection("Social Posts")
+            collection("Gourmet Posts")
             .doc(widget.postId)
             .collection("comment").get();
 
             for (var doc in commentDocs.docs) {
-              await FirebaseFirestore.instance.collection("Social Posts")
+              await FirebaseFirestore.instance.collection("Gourmet Posts")
               .doc(widget.postId)
               .collection("comment")
               .doc(doc.id)
@@ -160,7 +160,7 @@ class _SocialPostState extends State<SocialPost> {
 
 
             //delete post
-            FirebaseFirestore.instance.collection("Social Posts").doc(widget.postId)
+            FirebaseFirestore.instance.collection("Gourmet Posts").doc(widget.postId)
             .delete().then((value) => print("Post Deleted"))
             .catchError((error) => print("Failed to Delete : $error"));
 

@@ -122,20 +122,18 @@ class _HomePageState extends State<HomePage> {
       return Center(child: CircularProgressIndicator());
     }
   },
-)
+
+
+),
 
 
             ),
+
             
-            Text(
-              "Logged in as : ${currentUser.email!}",
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
+           
           ],
         ),
+        
       ),
     );
   }

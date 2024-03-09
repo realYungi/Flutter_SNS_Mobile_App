@@ -10,7 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:uridachi/methods/firestore_methods.dart';
 import 'package:uridachi/methods/storage_methods.dart';
 
 
@@ -143,6 +142,41 @@ Future<void> createPost() async {
   }
 }
 
+Future<void> createGourmet() async {
+  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null) {
+    try {
+      // Convert File images to Uint8List
+      List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
+
+      // Upload images and get their URLs
+      StorageMethods storageMethods = StorageMethods();
+      List<String> imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet');
+
+      // Construct post data
+      Map<String, dynamic> postData = {
+        'description': _descriptionController.text,
+        'uid': _auth.currentUser!.uid,
+        'email': _auth.currentUser!.email, // Using the user's email
+        'imageUrls': imageUrls,
+        'datePublished': FieldValue.serverTimestamp(),
+        'likes': [],
+      };
+
+      // Save the post data to Firestore
+      await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
+      showSnackBar("Posted successfully!", context);
+
+      // Reset state
+      _descriptionController.clear();
+      setState(() => selectedImages.clear());
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+  } else {
+    showSnackBar("Please enter a description and ensure you're logged in.", context);
+  }
+}
+
 
 
 @override
@@ -154,7 +188,6 @@ void dispose() {
 
   @override
   Widget build(BuildContext context) {
-
 
     return Scaffold(
       appBar: AppBar(
@@ -189,16 +222,14 @@ void dispose() {
                 
 
 
-                    Container(
+              Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[200], // Set the background color to a shade of gray.
                   borderRadius: BorderRadius.circular(20), // Set the border radius.
-                  border: Border.all(
-                    width: 1, // Add border width
-                  ),
+                  
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                margin: const EdgeInsets.only(top: 20), // Add some margin at the top
+                margin: const EdgeInsets.only(top: 20, bottom: 10), // Add some margin at the top
                 child: DropdownButtonFormField<String>(
                  
                   value: _selectedCategory,
@@ -327,9 +358,18 @@ void dispose() {
   ),
   child: const Text('Post', style: TextStyle(color: Colors.white),),
   onPressed: () {
-    createPost(); // Corrected method call
+    // Check the selected category and call the corresponding method
+    if (_selectedCategory == 'Social') {
+      createPost();
+    } else if (_selectedCategory == 'Gourmet') {
+      createGourmet();
+    } else {
+      // Optional: Show a snackbar message if no category is selected
+      showSnackBar("Please select a category.", context);
+    }
   },
 ),
+
 
 
             

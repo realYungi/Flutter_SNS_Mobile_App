@@ -51,6 +51,7 @@ class _MainPageState extends State<MainPage> {
 
 
       ),
+    
       bottomNavigationBar: CupertinoTabBar(
       
         backgroundColor: Colors.white,

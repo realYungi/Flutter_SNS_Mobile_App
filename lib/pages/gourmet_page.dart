@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
-import 'package:uridachi/components/social_post.dart';
+import 'package:uridachi/components/gourmet_post.dart';
 import 'package:uridachi/components/wallpost.dart';
 import 'package:uridachi/helper/helper_methods.dart';
 import 'package:uridachi/pages/auth_page.dart';
 import 'package:uridachi/pages/chat_page.dart';
 import 'package:uridachi/pages/profile_page.dart';
+
 
 import 'package:intl/intl.dart';
 
@@ -78,7 +79,7 @@ class _GourmetPageState extends State<GourmetPage> {
           children: [
             Expanded(
               child: StreamBuilder(
-  stream: FirebaseFirestore.instance.collection("Social Posts").snapshots(),
+  stream: FirebaseFirestore.instance.collection("Gourmet Posts").snapshots(),
   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
     if (snapshot.hasData) {
       return ListView.builder(
@@ -92,7 +93,7 @@ class _GourmetPageState extends State<GourmetPage> {
           var email = post['email'] ?? FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
 
           // Now you can directly use the email as the username
-          return SocialPost(
+          return GourmetPost(
             description: post['description'],
             user: email,  // Use the email as the user identifier
             time: DateFormat('yyyy-MM-dd – kk:mm').format((post['datePublished'] as Timestamp).toDate()),
@@ -113,13 +114,7 @@ class _GourmetPageState extends State<GourmetPage> {
 
             ),
             
-            Text(
-              "Logged in as : ${currentUser.email!}",
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
+            
           ],
         ),
       ),

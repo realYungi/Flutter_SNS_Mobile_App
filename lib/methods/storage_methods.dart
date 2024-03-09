@@ -27,3 +27,4 @@ class StorageMethods {
     return imageUrls;
   }
 }
+
