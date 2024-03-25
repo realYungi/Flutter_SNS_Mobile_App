@@ -222,31 +222,35 @@ void dispose() {
                 
 
 
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Set the background color to a shade of gray.
-                  borderRadius: BorderRadius.circular(20), // Set the border radius.
-                  
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                margin: const EdgeInsets.only(top: 20, bottom: 10), // Add some margin at the top
-                child: DropdownButtonFormField<String>(
-                 
-                  value: _selectedCategory,
-                  hint: Text("Select a category"),
-                  items: ["Social", "Gourmet"].map((String category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedCategory = newValue;
-                    });
-                  },
-                ),
-              ),
+             Container(
+  decoration: BoxDecoration(
+    color: Colors.grey[200], // Set the background color to a shade of gray.
+    borderRadius: BorderRadius.circular(20), // Set the border radius.
+  ),
+  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+  margin: const EdgeInsets.only(top: 20, bottom: 10), // Add some margin at the top
+  child: DropdownButtonFormField<String>(
+    value: _selectedCategory,
+    hint: Text("Select a category"),
+    decoration: InputDecoration(
+      // Remove the underline
+      border: InputBorder.none,
+      // Additional decorations can go here (e.g., filled, fillColor)
+    ),
+    items: ["Social", "Gourmet"].map((String category) {
+      return DropdownMenuItem(
+        value: category,
+        child: Text(category),
+      );
+    }).toList(),
+    onChanged: (newValue) {
+      setState(() {
+        _selectedCategory = newValue;
+      });
+    },
+  ),
+),
+
             SizedBox(
                       height: 20,
                     ),

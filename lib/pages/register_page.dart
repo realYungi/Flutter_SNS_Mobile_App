@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:uridachi/components/email_input_field.dart';
 import 'package:uridachi/components/my_button.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/my_dropdown_bar.dart';
+import 'package:uridachi/pages/auth_page.dart';
+import 'package:uridachi/screen/verification_screen.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -23,6 +26,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  String selectedDomain = "fuji.waseda.jp"; // Initial selected domain
+
+
   String? selectedValue;
   List<String> options = [
     'Waseda',
@@ -41,65 +47,64 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void signUserUp() async {
 
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        });
+  showDialog(
+    context: context,
+    builder: (context) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+  );
 
-    if (passwordController.text != confirmPasswordController.text) {
-      Navigator.pop(context);
-      showErrorMesssage("Passwords don't match");
-      return;
-    }
+  if (passwordController.text != confirmPasswordController.text) {
+    Navigator.pop(context);
+    showErrorMesssage("Passwords don't match");
+    return;
+  }
 
+String emailAddress = '${emailController.text.trim()}@${selectedDomain.trim()}';
 
-    //creating user
-    try {
-        UserCredential userCredential = 
+  // Creating user
+  try {
+    UserCredential userCredential =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
-        );
+      email: emailAddress,
+      password: passwordController.text.trim(),
+    );
 
-
-   
-
-
-    //after creating the user / create new firestore database 'users'
-
-    _firestore
-        .collection("Users")
-        .doc(userCredential.user!.email)
-        .set({
-          'uid' : userCredential.user!.uid,
-          'email' : emailController.text,
-          'university' : selectedValue,
-          'username' : usernameController.text,
-          'bio' : 'Empty Bio..',
-          'nationality' : nationalityController.text,
-
+    // After creating the user, save user data to Firestore
+    await _firestore.collection("Users").doc(userCredential.user!.email).set({
+      'uid': userCredential.user!.uid,
+      'email': emailAddress,
+      'university': selectedValue,
+      'username': usernameController.text,
+      'bio': 'Empty Bio..',
+      'nationality': nationalityController.text,
     });
 
+    if (context.mounted) Navigator.pop(context);
 
-
-
-      if (context.mounted) Navigator.pop(context); 
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-
-      showErrorMesssage(e.code);
-    }
+    // Navigate to AuthPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AuthPage()),
+    );
+  } on FirebaseAuthException catch (e) {
+    Navigator.pop(context);
+    showErrorMesssage(e.code);
   }
+}
+
+
+
+
 
   void showErrorMesssage(String message) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Color.fromARGB(255, 183, 255, 169),
           title: Center(
               child: Text(
             message,
@@ -166,12 +171,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(
                     height: 25,
                   ),
-                  MyTextField(
-                    height: 30,
-                    controller: emailController,
-                    hintText: "Email",
-                    obscureText: false,
-                  ),
+                  EmailInputField(
+                  controller: emailController,
+                  domainOptions: ["fuji.waseda.jp", "asagi.waseda.jp", "gmail.com"], // Add your domain options here
+                  selectedDomain: selectedDomain,
+                  onDomainChanged: (newValue) {
+                    setState(() {
+                      selectedDomain = newValue;
+                    });
+                  },
+                ),
                   const SizedBox(
                     height: 25,
                   ),
@@ -212,7 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 50,
                   ),
                   MyButton(
-                    text: "Send Verification Code",
+                    text: "Sign Up",
                     onTap: signUserUp,
                   ),
                   const SizedBox(
@@ -247,14 +256,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Already have an account? Log In Here',
-                          style: TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                      MyButton(
+  text: 'Already have an account? Log In Here',
+  onTap: widget.onTap,
+),
+
                     ],
                   ),
                   const SizedBox(

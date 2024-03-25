@@ -9,14 +9,13 @@ class ChatService {
 
 
   Stream<List<Map<String, dynamic>>> getUsersStream() {
-    return _firestore.collection("Users").snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final user = doc.data();
-        return user;
-      }).toList();
-    });
+  return FirebaseFirestore.instance
+      .collection('Users')
+      .snapshots()
+      .map((snapshot) =>
+          snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+}
 
-  }
 
   Future<void> sendMessage(String receiverID, message) async {
 

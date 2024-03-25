@@ -232,10 +232,15 @@ class _SocialPostState extends State<SocialPost> {
                 widget.user,
                 style: TextStyle(color: Colors.grey[400]),
               ),
-              Text(
-                " . ",
-                style: TextStyle(color: Colors.grey[400]),
-              ),
+            
+            ],
+                  ),
+
+                  const SizedBox(height: 5,),
+
+                  Row(
+            children: [
+              
               Text(
                 widget.time,
                 style: TextStyle(color: Colors.grey[400]),
@@ -251,6 +256,8 @@ class _SocialPostState extends State<SocialPost> {
                   
                   ],
                 ),
+
+                
                   
                 const SizedBox(height: 20,),
                   

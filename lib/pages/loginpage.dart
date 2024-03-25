@@ -170,14 +170,11 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Register Now',
-                          style: TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                     MyButton(
+  text: 'Register Now',
+  onTap: widget.onTap,
+),
+
                     ],
                   ),
                 ],

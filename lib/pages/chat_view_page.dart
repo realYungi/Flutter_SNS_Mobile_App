@@ -8,12 +8,14 @@ import 'package:uridachi/services/chat/chat_service.dart';
 class ChatViewPage extends StatelessWidget {
   final String receiverEmail;
   final String receiverID;
+  final String receiverUsername;
 
 
   ChatViewPage({
     super.key,
     required this.receiverEmail,
     required this.receiverID,
+    required this.receiverUsername,
     
     });
 
@@ -33,7 +35,7 @@ class ChatViewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(receiverEmail),
+        title: Text(receiverUsername),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0,
