@@ -94,7 +94,16 @@ String emailAddress = '${emailController.text.trim()}@${selectedDomain.trim()}';
     showErrorMesssage(e.code);
   }
 }
-
+List<String> getDomainOptions(String university) {
+    switch (university) {
+      case 'Waseda':
+        return ["fuji.waseda.jp", "asagi.waseda.jp", "gmail.com"];
+      case 'Keio':
+        return ["keio.jp", "keio.keio2.jp"];
+      default:
+        return ["schooldomain.com"]; // Default domain options
+    }
+  }
 
 
 
@@ -158,29 +167,30 @@ String emailAddress = '${emailController.text.trim()}@${selectedDomain.trim()}';
                   const SizedBox(
                     height: 50,
                   ),
-                  MyDropdownBar(
+                   MyDropdownBar(
                     defaultValue: selectedValue,
                     options: options,
                     onChanged: (newValue) {
                       setState(() {
                         selectedValue = newValue;
+                        // Update the selected domain based on the new university selection
+                        selectedDomain = getDomainOptions(newValue!).first;
                       });
-                      // Here you can also call any logic to save the user's selection, e.g., a function to update a database or shared preferences
                     },
                   ),
                   const SizedBox(
                     height: 25,
                   ),
                   EmailInputField(
-                  controller: emailController,
-                  domainOptions: ["fuji.waseda.jp", "asagi.waseda.jp", "gmail.com"], // Add your domain options here
-                  selectedDomain: selectedDomain,
-                  onDomainChanged: (newValue) {
-                    setState(() {
-                      selectedDomain = newValue;
-                    });
-                  },
-                ),
+                    controller: emailController,
+                    domainOptions: getDomainOptions(selectedValue!),
+                    selectedDomain: selectedDomain,
+                    onDomainChanged: (newValue) {
+                      setState(() {
+                        selectedDomain = newValue;
+                      });
+                    },
+                  ),
                   const SizedBox(
                     height: 25,
                   ),
