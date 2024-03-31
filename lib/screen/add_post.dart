@@ -40,6 +40,7 @@ class _AddPostState extends State<AddPost> {
   List<Uint8List>? _files;
 
   String? _selectedCategory;
+  String? _selectedType;
 
   void showSnackBar(String message, BuildContext context) {
   final snackBar = SnackBar(content: Text(message));
@@ -251,6 +252,49 @@ void dispose() {
   ),
 ),
 
+SizedBox(
+                      height: 20,
+                    ),
+
+  Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[200], // Set the background color to a shade of gray.
+        borderRadius: BorderRadius.circular(20), // Set the border radius.
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      margin: const EdgeInsets.only(top: 10, bottom: 10), // Add some margin at the top and bottom
+      child: DropdownButtonFormField<String>(
+        value: _selectedType,
+        hint: Text("Select type"),
+        decoration: InputDecoration(
+          // Remove the underline
+          border: InputBorder.none,
+          // Additional decorations can go here (e.g., filled, fillColor)
+        ),
+        items: ["Text Only", "With Image"].map((String type) {
+          return DropdownMenuItem(
+            value: type,
+            child: Text(type),
+          );
+        }).toList(),
+        onChanged: (newValue) {
+          setState(() {
+            _selectedType = newValue;
+          });
+        },
+      ),
+    ),
+
+
+
+
+
+
+
+
+
+
+
             SizedBox(
                       height: 20,
                     ),
@@ -283,7 +327,11 @@ void dispose() {
   ),
 ),
 
-               
+              if (_selectedCategory == "Gourmet") // Conditionally render the text "star"
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text("star", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  ),
             
             
             
