@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,7 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> {
+  double _rating = 3.0; // Default rating value
 
 
   final currentUser = FirebaseAuth.instance.currentUser!;
@@ -104,6 +106,7 @@ Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPos
 
     TaskSnapshot snap = await uploadTask;
     String downloadUrl = await snap.ref.getDownloadURL();
+    print(downloadUrl);
     return downloadUrl;
   }
 
@@ -111,21 +114,27 @@ Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPos
 Future<void> createPost() async {
   if (_descriptionController.text.isNotEmpty && _auth.currentUser != null) {
     try {
-      // Convert File images to Uint8List
-      List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
+      // Define a variable to hold image URLs
+      List<String> imageUrls = [];
 
-      // Upload images and get their URLs
-      StorageMethods storageMethods = StorageMethods();
-      List<String> imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'posts');
+      // If the selectedType is "With Image", process and upload the images
+      if (_selectedType == "With Image") {
+        // Convert File images to Uint8List
+        List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
+        // Upload images and get their URLs
+        StorageMethods storageMethods = StorageMethods();
+        imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'posts');
+      }
 
-      // Construct post data
+      // Construct post data, conditionally include imageUrls based on selectedType
       Map<String, dynamic> postData = {
         'description': _descriptionController.text,
         'uid': _auth.currentUser!.uid,
-        'email': _auth.currentUser!.email, // Using the user's email
-        'imageUrls': imageUrls,
+        'email': _auth.currentUser!.email,
         'datePublished': FieldValue.serverTimestamp(),
         'likes': [],
+        // Include image URLs only if there are any
+        if (imageUrls.isNotEmpty) 'imageUrls': imageUrls,
       };
 
       // Save the post data to Firestore
@@ -134,7 +143,10 @@ Future<void> createPost() async {
 
       // Reset state
       _descriptionController.clear();
-      setState(() => selectedImages.clear());
+      setState(() {
+        selectedImages.clear();
+        _files = null; // Ensure any selected file previews are also cleared
+      });
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
@@ -143,40 +155,45 @@ Future<void> createPost() async {
   }
 }
 
+
+
 Future<void> createGourmet() async {
-  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null) {
+  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
     try {
-      // Convert File images to Uint8List
-      List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
+      List<String> imageUrls = [];
+      if (_selectedType == "With Image") {
+        // Your existing logic to handle images
+      }
 
-      // Upload images and get their URLs
-      StorageMethods storageMethods = StorageMethods();
-      List<String> imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet');
-
-      // Construct post data
+      // Construct post data, including the rating
       Map<String, dynamic> postData = {
         'description': _descriptionController.text,
         'uid': _auth.currentUser!.uid,
-        'email': _auth.currentUser!.email, // Using the user's email
-        'imageUrls': imageUrls,
+        'email': _auth.currentUser!.email,
+        'imageUrls': imageUrls, // This might be empty if no images are selected
         'datePublished': FieldValue.serverTimestamp(),
         'likes': [],
+        'rating': _rating, // Include the rating here
       };
 
-      // Save the post data to Firestore
       await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
       showSnackBar("Posted successfully!", context);
 
-      // Reset state
+      // Reset the form
       _descriptionController.clear();
-      setState(() => selectedImages.clear());
+      setState(() {
+        selectedImages.clear();
+        _files = null; // Clear any selected files if applicable
+      });
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
   } else {
-    showSnackBar("Please enter a description and ensure you're logged in.", context);
+    showSnackBar("Please select at least one image for a Gourmet post.", context);
+  
   }
 }
+
 
 
 
@@ -252,39 +269,58 @@ void dispose() {
   ),
 ),
 
+if (_selectedCategory != "Gourmet") // Add this check
+  Container(
+    decoration: BoxDecoration(
+      color: Colors.grey[200], // Set the background color to a shade of gray.
+      borderRadius: BorderRadius.circular(20), // Set the border radius.
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+    margin: const EdgeInsets.only(top: 10, bottom: 10), // Add some margin at the top and bottom
+    child: DropdownButtonFormField<String>(
+      value: _selectedType,
+      hint: Text("Select type"),
+      decoration: InputDecoration(
+        // Remove the underline
+        border: InputBorder.none,
+        // Additional decorations can go here (e.g., filled, fillColor)
+      ),
+      items: ["Text Only", "With Image"].map((String type) {
+        return DropdownMenuItem(
+          value: type,
+          child: Text(type),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedType = newValue;
+        });
+      },
+    ),
+  ),
+
+
 SizedBox(
                       height: 20,
                     ),
 
-  Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[200], // Set the background color to a shade of gray.
-        borderRadius: BorderRadius.circular(20), // Set the border radius.
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      margin: const EdgeInsets.only(top: 10, bottom: 10), // Add some margin at the top and bottom
-      child: DropdownButtonFormField<String>(
-        value: _selectedType,
-        hint: Text("Select type"),
-        decoration: InputDecoration(
-          // Remove the underline
-          border: InputBorder.none,
-          // Additional decorations can go here (e.g., filled, fillColor)
-        ),
-        items: ["Text Only", "With Image"].map((String type) {
-          return DropdownMenuItem(
-            value: type,
-            child: Text(type),
-          );
-        }).toList(),
-        onChanged: (newValue) {
-          setState(() {
-            _selectedType = newValue;
-          });
-        },
-      ),
-    ),
 
+// Inside your build method
+Visibility(
+  // Show the button if _selectedCategory is "Gourmet" or _selectedType is "With Image"
+  visible: _selectedCategory == "Gourmet" || _selectedType == "With Image",
+  child: ElevatedButton(
+    style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Colors.green)),
+    child: const Text(
+      'Select Image from Gallery and Camera',
+      style: TextStyle(color: Colors.white),
+    ),
+    onPressed: () {
+      getImages();
+    },
+  ),
+),
 
 
 
@@ -330,7 +366,25 @@ SizedBox(
               if (_selectedCategory == "Gourmet") // Conditionally render the text "star"
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text("star", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    child: RatingBar.builder(
+  initialRating: _rating,
+  minRating: 1,
+  direction: Axis.horizontal,
+  allowHalfRating: true,
+  itemCount: 5,
+  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+  itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+  onRatingUpdate: (rating) {
+    setState(() {
+      _rating = rating; // Update _rating with the new rating
+    });
+  },
+),
+
+
+
+
+
                   ),
             
             
@@ -350,14 +404,6 @@ SizedBox(
                     
             
             
-                    ElevatedButton(
-			style: ButtonStyle(
-				backgroundColor: MaterialStateProperty.all(Colors.green)),
-			child: const Text('Select Image from Gallery and Camera',style: TextStyle(color: Colors.white),),
-			onPressed: () {
-				getImages();
-			},
-			),
 
 
       SizedBox(

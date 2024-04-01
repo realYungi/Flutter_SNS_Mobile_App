@@ -100,6 +100,8 @@ class _GourmetPageState extends State<GourmetPage> {
             postId: postId,
             likes: List<String>.from(post['likes'] ?? []),
             imageUrls: List<String>.from(post['imageUrls'] ?? []),
+            rating: post['rating'].toDouble() ?? 0.0,
+            
           );
         },
       );

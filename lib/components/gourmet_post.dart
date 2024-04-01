@@ -18,6 +18,7 @@ class GourmetPost extends StatefulWidget {
     final String postId;
     final List<String> likes;
     final List<String> imageUrls;
+    final double rating;
 
 
 
@@ -30,6 +31,7 @@ class GourmetPost extends StatefulWidget {
     required this.postId,
     required this.likes,
     required this.imageUrls,
+    required this.rating
  
 });
 
@@ -260,30 +262,42 @@ class _GourmetPostState extends State<GourmetPost> {
                 const SizedBox(height: 20,),
                   
                   
-                if (widget.imageUrls.isNotEmpty)
-            Container(
-                  height: 200, 
-                  // Set a fixed height for the container
-                  child: ListView.builder(
-            scrollDirection: Axis.horizontal, // Make the list view scrollable horizontally
-            itemCount: widget.imageUrls.length, // The number of items in the list
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 8.0), // Add some spacing between images
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8), // Optional: Clip the images with a border radius
-                  child: Image.network(
-                    widget.imageUrls[index], // Load the image from the URL
-                    width: 200, // Set a fixed width for each image
-                    fit: BoxFit.cover, // Cover the bounds of the container
-                  ),
-                ),
-              );
-            },
-                  ),
+            if (widget.imageUrls.isNotEmpty)
+  Container(
+    height: 200, 
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: widget.imageUrls.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              widget.imageUrls[index],
+              width: 200,
+              fit: BoxFit.cover,
             ),
+          ),
+        );
+      },
+    ),
+  ),
+
                   
                   const SizedBox(height: 25), 
+
+                  Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: [
+                Icon(Icons.star, color: Colors.amber),
+                Text('${widget.rating.toString()} / 5'), // Assuming rating is passed as a double
+              ],
+            ),
+          ),
+                            const SizedBox(height: 15), 
+
                   
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
