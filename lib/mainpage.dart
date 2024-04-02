@@ -15,6 +15,8 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _page = 0;
   late PageController pageController;
+    int _selectedIndex = 0;
+
 
   @override
   void initState() {
@@ -41,59 +43,69 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+ void _onItemTapped(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+  pageController.animateToPage(
+    index,
+    duration: Duration(milliseconds: 300), // Duration of the animation
+    curve: Curves.easeInOut, // The animation curve
+  );
+}
+
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        children: homeScreenItems,
-        controller: pageController,
-        onPageChanged: onPageChanged,
-
-
-      ),
-    
-      bottomNavigationBar: CupertinoTabBar(
-      
-        backgroundColor: Colors.white,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home,
-              color: _page == 0 ? selectedColor : unselectedColor,
-            ),
-            label: 'Homepage',
-            
-            backgroundColor: Colors.white,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.chat,
-              color: _page == 1 ? selectedColor : unselectedColor,
-            ),
-            label: 'Chat',
-            backgroundColor: Colors.white,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box,               color: _page == 2 ? selectedColor: unselectedColor,
-),
-            label: 'Add Post',
-            backgroundColor: Colors.white,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.food_bank,               color: _page == 3 ? selectedColor: unselectedColor,
-),
-            label: 'Gourmet',
-            backgroundColor: Colors.white,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person,               color: _page == 4 ? selectedColor: unselectedColor,
-),
-            label: 'Profile',
-            backgroundColor: Colors.white,
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: PageView(
+      children: homeScreenItems,
+      controller: pageController,
+      onPageChanged: onPageChanged,
+    ),
+    bottomNavigationBar: Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // Set the background color of the navbar to white
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1), // Adjust the opacity as needed
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3), // changes position of shadow
           ),
         ],
-        onTap: navigationTapped,
       ),
-    );
-  }
+      child: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '日韓SNS',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'メッセージ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'アプロード',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.food_bank_rounded),
+            label: 'グルメ辞書',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'プロフィール',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Color.fromARGB(255, 138, 255, 114),
+        onTap: _onItemTapped,
+        backgroundColor: Colors.transparent, // Make the BottomNavigationBar's background transparent
+        type: BottomNavigationBarType.fixed, // Prevents the navbar from shifting
+        elevation: 0, // Removes any existing elevation shadow
+      ),
+    ),
+  );
+}
 }

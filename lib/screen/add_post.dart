@@ -11,6 +11,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:uridachi/components/custom_text_form_field.dart';
 import 'package:uridachi/methods/storage_methods.dart';
 
 
@@ -33,7 +34,7 @@ class _AddPostState extends State<AddPost> {
   final TextEditingController _descriptionController = TextEditingController();
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  final TextEditingController _placeSearchController = TextEditingController();
 
   List<File> selectedImages = [];
   final picker = ImagePicker();
@@ -386,7 +387,24 @@ Visibility(
 
 
                   ),
-            
+if (_selectedCategory == "Gourmet")
+  Container(
+    decoration: BoxDecoration(
+      color: Colors.grey[200], // Set the background color to a shade of gray.
+      borderRadius: BorderRadius.circular(20), // Set the border radius.
+    ),
+    padding: const EdgeInsets.all(8.0),
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Match the margin as needed
+    child: Column(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7, // Consider using full width for true centering if needed.
+          child: CustomTextFormField(controller: _placeSearchController),
+        ),
+      ],
+    ),
+  ),
+          
             
             
             
