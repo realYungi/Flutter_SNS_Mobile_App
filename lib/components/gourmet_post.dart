@@ -201,44 +201,23 @@ class _GourmetPostState extends State<GourmetPost> {
           child: Padding(
             padding: const EdgeInsets.all(25),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                   
                   
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+
                   children: [
                     
                   
                    Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             
-            Container(
-                  
-                  width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
-                  child: Text(
-            widget.description,
-            style: TextStyle(fontSize: 20),
-            maxLines: null, // Allow for any number of lines
-                  ),
-                  
-                  ),
-                  
-                  const SizedBox(height: 10,),
-                  Row(
-            children: [
-              Text(
-                widget.user,
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-            
-            ],
-                  ),
 
-                  const SizedBox(height: 5,),
+              
 
                   Row(
             children: [
@@ -249,6 +228,37 @@ class _GourmetPostState extends State<GourmetPost> {
               ),
             ],
                   ),
+
+
+                  const SizedBox(height: 5,),
+             
+            Container(
+                  
+                  width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
+                  child: Text(
+            widget.description,
+            style: TextStyle(fontSize: 20, color: Colors.green),
+            maxLines: null, // Allow for any number of lines
+                  ),
+                  
+                  ),
+                  
+                  const SizedBox(height: 10,),
+
+
+
+
+                  Row(
+            children: [
+              Text(
+                widget.user,
+                style: TextStyle(color: Colors.grey[400]),
+              ),
+            
+            ],
+                  ),
+
+                  
             ],
                   ),
                   

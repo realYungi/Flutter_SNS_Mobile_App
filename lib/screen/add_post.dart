@@ -161,40 +161,65 @@ Future<void> createPost() async {
 Future<void> createGourmet() async {
   if (_descriptionController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
     try {
-      List<String> imageUrls = [];
-      if (_selectedType == "With Image") {
-        // Your existing logic to handle images
-      }
+      // Initialize the storage method instance
+      StorageMethods storageMethods = StorageMethods();
 
-      // Construct post data, including the rating
+      List<String> imageUrls = [];
+
+      // Convert File images to Uint8List
+      List<Uint8List> imageFiles = selectedImages.map((file) => File(file.path).readAsBytesSync()).toList();
+
+      // Upload images and retrieve their URLs
+      imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet_posts');
+
+      // Construct post data, including the rating and image URLs
       Map<String, dynamic> postData = {
         'description': _descriptionController.text,
         'uid': _auth.currentUser!.uid,
         'email': _auth.currentUser!.email,
-        'imageUrls': imageUrls, // This might be empty if no images are selected
+        'imageUrls': imageUrls, // This should now contain URLs of the uploaded images
         'datePublished': FieldValue.serverTimestamp(),
         'likes': [],
-        'rating': _rating, // Include the rating here
+        'rating': _rating,
       };
 
+      // Save the post data to Firestore
       await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
       showSnackBar("Posted successfully!", context);
 
-      // Reset the form
+      // Reset form state
       _descriptionController.clear();
       setState(() {
         selectedImages.clear();
-        _files = null; // Clear any selected files if applicable
+        _files = null;
       });
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
   } else {
     showSnackBar("Please select at least one image for a Gourmet post.", context);
-  
   }
 }
 
+
+ Future getImages() async {
+	final pickedFile = await picker.pickMultiImage(
+		imageQuality: 100, maxHeight: 1000, maxWidth: 1000);
+	List<XFile> xfilePick = pickedFile;
+
+	setState(
+	() {
+		if (xfilePick.isNotEmpty) {
+		for (var i = 0; i < xfilePick.length; i++) {
+			selectedImages.add(File(xfilePick[i].path));
+		}
+		} else {
+		ScaffoldMessenger.of(context).showSnackBar(
+			const SnackBar(content: Text('Nothing is selected')));
+		}
+	},
+	);
+}
 
 
 
@@ -513,24 +538,7 @@ if (_selectedCategory == "Gourmet")
   }
 
 
-  Future getImages() async {
-	final pickedFile = await picker.pickMultiImage(
-		imageQuality: 100, maxHeight: 1000, maxWidth: 1000);
-	List<XFile> xfilePick = pickedFile;
-
-	setState(
-	() {
-		if (xfilePick.isNotEmpty) {
-		for (var i = 0; i < xfilePick.length; i++) {
-			selectedImages.add(File(xfilePick[i].path));
-		}
-		} else {
-		ScaffoldMessenger.of(context).showSnackBar(
-			const SnackBar(content: Text('Nothing is selected')));
-		}
-	},
-	);
-}
+ 
 
 
 }
