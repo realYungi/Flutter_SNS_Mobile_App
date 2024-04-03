@@ -38,7 +38,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   void getSuggestion(String input) async {
     if (mounted) {
-      String apiKey = "AIzaSyDV7MPDpFXHRrSqvqAEg2JHSTHby60Wnig";
+      String apiKey = "";
       String baseURL =
           "https://maps.googleapis.com/maps/api/place/autocomplete/json";
       String components = "country:JP";
@@ -76,13 +76,21 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return Column(
       children: [
         TextFormField(
-          controller: widget.controller,
-          decoration: InputDecoration(
-              hintText: 'Search', labelStyle: TextStyle(color: Colors.white)),
-        ),
+  controller: widget.controller,
+  decoration: InputDecoration(
+    hintText: 'Search',
+    hintStyle: TextStyle(color: Colors.grey), // Optional: Adjust hint text style
+    labelStyle: TextStyle(color: Colors.white),
+    border: InputBorder.none, // This removes the underline
+    // If you have a filled TextField and want to define a color
+    filled: true, // Optional: Set to true if you want a fill color
+    fillColor: Colors.transparent, // Optional: Set fill color
+  ),
+),
+
         ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: AlwaysScrollableScrollPhysics(),
           itemCount: _placesList.length,
           itemBuilder: (context, index) {
             return ListTile(
