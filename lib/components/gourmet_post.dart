@@ -5,6 +5,7 @@ import 'package:uridachi/components/comment.dart';
 import 'package:uridachi/components/comment_button.dart';
 import 'package:uridachi/components/delete_button.dart';
 import 'package:uridachi/components/like_button.dart';
+import 'package:uridachi/components/send_button.dart';
 import 'package:uridachi/screen/coment_screen.dart';
 import 'package:clay_containers/clay_containers.dart';
 
@@ -19,10 +20,9 @@ class GourmetPost extends StatefulWidget {
     final List<String> likes;
     final List<String> imageUrls;
     final double rating;
+    final String location;
 
-
-
-
+  
   const GourmetPost({
     super.key,
     required this.description,
@@ -31,7 +31,8 @@ class GourmetPost extends StatefulWidget {
     required this.postId,
     required this.likes,
     required this.imageUrls,
-    required this.rating
+    required this.rating,
+    required this.location,
  
 });
 
@@ -189,167 +190,228 @@ class _GourmetPostState extends State<GourmetPost> {
 
     return Padding(
         padding: const EdgeInsets.only(top: 25, left: 25, right: 25),      
-        child: ClayContainer(
-          color: baseColor,
-          height: null, // Remove fixed height
-          borderRadius: 20,
-          depth: 50, // Adjust depth to control shadow intensity
-          spread: 5, // Adjust spread to control the size of the shadow
+        child: Container(
+          decoration: BoxDecoration(
+    color: baseColor, // Set the background color of the container
+    borderRadius: BorderRadius.circular(20), // Set the border radius
+    boxShadow: [
+      BoxShadow(
+        color: Color.fromARGB(255, 233, 233, 233).withOpacity(0.5), // Shadow color with opacity
+        spreadRadius: 3, // Spread radius
+        blurRadius: 5, // Blur radius
+        offset: Offset(0, 0), // Shadow position
+      ),
+    ],
+  ),
+          
+          
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+
+                                      const SizedBox(height: 10), 
 
 
-
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                  
-                  
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-
-                  children: [
-                    
-                  
-                   Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-
-              
-
-                  Row(
-            children: [
-              
-              Text(
-                widget.time,
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-            ],
-                  ),
-
-
-                  const SizedBox(height: 5,),
-             
-            Container(
-                  
-                  width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
-                  child: Text(
-            widget.description,
-            style: TextStyle(fontSize: 20, color: Colors.green),
-            maxLines: null, // Allow for any number of lines
-                  ),
-                  
-                  ),
-                  
-                  const SizedBox(height: 10,),
-
-
-
-
-                  Row(
-            children: [
-              Text(
-                widget.user,
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-            
-            ],
-                  ),
-
-                  
-            ],
-                  ),
-                  
-                  
-                    if (widget.user == currentUser.email) 
-                    DeleteButton(onTap: deletePost)
-                  
-                  ],
-                ),
-                  
-                const SizedBox(height: 20,),
-                  
-                  
-            if (widget.imageUrls.isNotEmpty)
+                          if (widget.imageUrls.isNotEmpty) 
   Container(
-    height: 200, 
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: widget.imageUrls.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(right: 8.0),
+    height: 150, 
+    child: widget.imageUrls.length == 1
+      ? Center(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
-              widget.imageUrls[index],
-              width: 200,
+              widget.imageUrls.first,
+              width: 130,
+              
               fit: BoxFit.cover,
             ),
           ),
-        );
-      },
-    ),
+        )
+      : ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: widget.imageUrls.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  widget.imageUrls[index],
+                  width: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          },
+        ),
   ),
 
-                  
-                  const SizedBox(height: 25), 
-
-                  Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
+          
+                    
+                    const SizedBox(height: 25), 
+                    
+                    
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+          
+                    children: [
+                      
+                    
+                     Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.star, color: Colors.amber),
-                Text('${widget.rating.toString()} / 5'), // Assuming rating is passed as a double
-              ],
-            ),
-          ),
-                            const SizedBox(height: 15), 
-
-                  
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                  
-                        //like
-                        LikeButton(
-                          isLiked: isLiked, 
-                          onTap: toggleLike,
-                        ),
-                    
-                        const SizedBox(height: 5,),
-                    
-                  
-                      ],
-                    ),
-                  
-                  
-                    const SizedBox(width: 10,),
-                  
-                  
-                    
-                    
-                  
-                    //comment
-               
-                  ],
+          
+                
+          
+                    Row(
+              children: [
+                
+                Text(
+                  widget.time,
+                  style: TextStyle(color: Colors.grey[400]),
                 ),
-                  
-              
-                  
-                  
-                  
-                  
-                  
               ],
+                    ),
+          
+          
+                    const SizedBox(height: 5,),
+               
+              Container(
+                    
+                    width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
+                    child: Text(
+              widget.description,
+              style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 0, 0, 0)),
+              maxLines: null, // Allow for any number of lines
+                    ),
+                    
+                    ),
+                    
+                    const SizedBox(height: 10,),
+          
+          
+          
+          
+                  
+          
+                    
+              ],
+                    ),
+                    
+                    
+                      if (widget.user == currentUser.email) 
+                      DeleteButton(onTap: deletePost)
+                    
+                    ],
+                  ),
+                    
+                  const SizedBox(height: 5,),
+                    
+                    
+     
+          
+          
+                    Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                widget.location, // Display location
+                style: TextStyle(fontSize: 13, color: const Color.fromARGB(255, 201, 201, 201)),
+              ),
             ),
-          ),
-    ),
-    );
+          
+                     
+          
+          
+                 Padding(
+  padding: const EdgeInsets.only(top: 8.0),
+  child: Row(
+    children: [
+      Icon(Icons.star, color: Colors.amber),
+      Text('${widget.rating.toString()} / 5'), // Assuming rating is passed as a double
+    ],
+  ),
+),
+
+                              const SizedBox(height: 15), 
+          
+                    
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+
+
+                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.user,
+                  style: TextStyle(color: Colors.grey[400]),
+                ),
+              
+              ],
+                    ),
+
+
+                      const SizedBox(width: 30,),
+
+                      Column(
+                        children: [
+
+                          
+                    
+                          //like
+                          LikeButton(
+                            isLiked: isLiked, 
+                            onTap: toggleLike,
+                          ),
+                      
+                          
+                      
+                    
+                        ],
+                      ),
+                    
+                    
+                      const SizedBox(width: 10,),
+
+                      Column(
+                        children: [
+                          SendButton(
+                                onPressed: () {
+                                  // Define the action when the send button is pressed
+                                  print('Send button pressed');
+                                },
+                              ),
+                        ],
+                      ),
+          
+                      
+                    
+                    
+                      
+                      
+                    
+                      //comment
+                 
+                    ],
+                  ),
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                ],
+              ),
+            ),
+              ),
+        );
+    
         
     
     

@@ -161,33 +161,27 @@ Future<void> createPost() async {
 Future<void> createGourmet() async {
   if (_descriptionController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
     try {
-      // Initialize the storage method instance
       StorageMethods storageMethods = StorageMethods();
 
       List<String> imageUrls = [];
-
-      // Convert File images to Uint8List
       List<Uint8List> imageFiles = selectedImages.map((file) => File(file.path).readAsBytesSync()).toList();
-
-      // Upload images and retrieve their URLs
       imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet_posts');
 
-      // Construct post data, including the rating and image URLs
+      // Construct post data, including the rating, image URLs, and location
       Map<String, dynamic> postData = {
         'description': _descriptionController.text,
         'uid': _auth.currentUser!.uid,
         'email': _auth.currentUser!.email,
-        'imageUrls': imageUrls, // This should now contain URLs of the uploaded images
+        'imageUrls': imageUrls,
         'datePublished': FieldValue.serverTimestamp(),
         'likes': [],
         'rating': _rating,
+        'location': _placeSearchController.text, // Save location from _placeSearchController
       };
 
-      // Save the post data to Firestore
       await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
       showSnackBar("Posted successfully!", context);
 
-      // Reset form state
       _descriptionController.clear();
       setState(() {
         selectedImages.clear();
@@ -200,6 +194,7 @@ Future<void> createGourmet() async {
     showSnackBar("Please select at least one image for a Gourmet post.", context);
   }
 }
+
 
 
  Future getImages() async {
@@ -536,9 +531,5 @@ if (_selectedCategory == "Gourmet")
       ),
     );
   }
-
-
- 
-
 
 }
