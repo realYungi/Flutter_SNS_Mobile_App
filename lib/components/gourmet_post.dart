@@ -6,6 +6,7 @@ import 'package:uridachi/components/comment_button.dart';
 import 'package:uridachi/components/delete_button.dart';
 import 'package:uridachi/components/like_button.dart';
 import 'package:uridachi/components/send_button.dart';
+import 'package:uridachi/pages/chat_view_page.dart';
 import 'package:uridachi/screen/coment_screen.dart';
 import 'package:clay_containers/clay_containers.dart';
 
@@ -181,6 +182,24 @@ class _GourmetPostState extends State<GourmetPost> {
   }
 
 
+  Future<Map<String, dynamic>?> fetchUserDetailsByEmail(String userEmail) async {
+  try {
+    var usersCollection = FirebaseFirestore.instance.collection('Users');
+    var querySnapshot = await usersCollection.where('email', isEqualTo: userEmail).limit(1).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      // Assuming 'username' and 'uid' are fields in your user documents
+      return querySnapshot.docs.first.data() as Map<String, dynamic>?;
+    } else {
+      return null; // User not found
+    }
+  } catch (e) {
+    print("Error fetching user details: $e");
+    return null;
+  }
+}
+
+
+
 
 
   @override
@@ -224,7 +243,7 @@ class _GourmetPostState extends State<GourmetPost> {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               widget.imageUrls.first,
-              width: 130,
+              width: 200,
               
               fit: BoxFit.cover,
             ),
@@ -380,12 +399,7 @@ class _GourmetPostState extends State<GourmetPost> {
 
                       Column(
                         children: [
-                          SendButton(
-                                onPressed: () {
-                                  // Define the action when the send button is pressed
-                                  print('Send button pressed');
-                                },
-                              ),
+                         SendButton(postCreatorEmail: widget.user),
                         ],
                       ),
           
