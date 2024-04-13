@@ -13,6 +13,7 @@ import 'package:clay_containers/clay_containers.dart';
 //where our posts are posted
 class SocialPost extends StatefulWidget {
     final String description;
+    final String content;
     final String user;
     final String time;
     final String postId;
@@ -25,6 +26,7 @@ class SocialPost extends StatefulWidget {
   const SocialPost({
     super.key,
     required this.description,
+    required this.content,
     required this.user,
     required this.time,
     required this.postId,
@@ -219,6 +221,18 @@ class _SocialPostState extends State<SocialPost> {
                   width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
                   child: Text(
             widget.description,
+            style: TextStyle(fontSize: 20),
+            maxLines: null, // Allow for any number of lines
+                  ),
+                  
+                  ),
+                  
+                  const SizedBox(height: 10,),
+                  Container(
+                  
+                  width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
+                  child: Text(
+            widget.content,
             style: TextStyle(fontSize: 20),
             maxLines: null, // Allow for any number of lines
                   ),

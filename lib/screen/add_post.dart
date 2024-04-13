@@ -31,7 +31,8 @@ class _AddPostState extends State<AddPost> {
 
 
   final currentUser = FirebaseAuth.instance.currentUser!;
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleofpostController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _placeSearchController = TextEditingController();
@@ -113,7 +114,7 @@ Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPos
 
 
 Future<void> createPost() async {
-  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null) {
+  if (_titleofpostController.text.isNotEmpty && _auth.currentUser != null) {
     try {
       // Define a variable to hold image URLs
       List<String> imageUrls = [];
@@ -129,7 +130,8 @@ Future<void> createPost() async {
 
       // Construct post data, conditionally include imageUrls based on selectedType
       Map<String, dynamic> postData = {
-        'description': _descriptionController.text,
+        'titleofpost': _titleofpostController.text,
+        'content' : _contentController.text,
         'uid': _auth.currentUser!.uid,
         'email': _auth.currentUser!.email,
         'datePublished': FieldValue.serverTimestamp(),
@@ -143,7 +145,7 @@ Future<void> createPost() async {
       showSnackBar("Posted successfully!", context);
 
       // Reset state
-      _descriptionController.clear();
+      _titleofpostController.clear();
       setState(() {
         selectedImages.clear();
         _files = null; // Ensure any selected file previews are also cleared
@@ -152,14 +154,14 @@ Future<void> createPost() async {
       showSnackBar(e.toString(), context);
     }
   } else {
-    showSnackBar("Please enter a description and ensure you're logged in.", context);
+    showSnackBar("Please enter a titleofpost and ensure you're logged in.", context);
   }
 }
 
 
 
 Future<void> createGourmet() async {
-  if (_descriptionController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
+  if (_titleofpostController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
     try {
       StorageMethods storageMethods = StorageMethods();
 
@@ -169,7 +171,8 @@ Future<void> createGourmet() async {
 
       // Construct post data, including the rating, image URLs, and location
       Map<String, dynamic> postData = {
-        'description': _descriptionController.text,
+        'titleofpost': _titleofpostController.text,
+        'content' : _contentController.text,
         'uid': _auth.currentUser!.uid,
         'email': _auth.currentUser!.email,
         'imageUrls': imageUrls,
@@ -182,7 +185,7 @@ Future<void> createGourmet() async {
       await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
       showSnackBar("Posted successfully!", context);
 
-      _descriptionController.clear();
+      _titleofpostController.clear();
       setState(() {
         selectedImages.clear();
         _files = null;
@@ -221,7 +224,7 @@ Future<void> createGourmet() async {
 @override
 void dispose() {
   super.dispose();
-  _descriptionController.dispose();
+  _titleofpostController.dispose();
 }
 
 
@@ -261,7 +264,7 @@ void dispose() {
                 
 
 
-             Container(
+            Container(
   decoration: BoxDecoration(
     color: Colors.grey[200], // Set the background color to a shade of gray.
     borderRadius: BorderRadius.circular(20), // Set the border radius.
@@ -272,9 +275,7 @@ void dispose() {
     value: _selectedCategory,
     hint: Text("Select a category"),
     decoration: InputDecoration(
-      // Remove the underline
-      border: InputBorder.none,
-      // Additional decorations can go here (e.g., filled, fillColor)
+      border: InputBorder.none, // Remove the underline
     ),
     items: ["Social", "Gourmet"].map((String category) {
       return DropdownMenuItem(
@@ -290,7 +291,8 @@ void dispose() {
   ),
 ),
 
-if (_selectedCategory != "Gourmet") // Add this check
+// This dropdown is now always visible when a category is selected
+ // Check if a category is selected
   Container(
     decoration: BoxDecoration(
       color: Colors.grey[200], // Set the background color to a shade of gray.
@@ -302,9 +304,7 @@ if (_selectedCategory != "Gourmet") // Add this check
       value: _selectedType,
       hint: Text("Select type"),
       decoration: InputDecoration(
-        // Remove the underline
-        border: InputBorder.none,
-        // Additional decorations can go here (e.g., filled, fillColor)
+        border: InputBorder.none, // Remove the underline
       ),
       items: ["Text Only", "With Image"].map((String type) {
         return DropdownMenuItem(
@@ -321,6 +321,7 @@ if (_selectedCategory != "Gourmet") // Add this check
   ),
 
 
+
 SizedBox(
                       height: 20,
                     ),
@@ -328,11 +329,14 @@ SizedBox(
 
 // Inside your build method
 Visibility(
-  // Show the button if _selectedCategory is "Gourmet" or _selectedType is "With Image"
-  visible: _selectedCategory == "Gourmet" || _selectedType == "With Image",
+  // Show the button if _selectedCategory is "Gourmet" and _selectedType is not "Text Only",
+  // or if _selectedType is "With Image"
+  visible: (_selectedCategory == "Gourmet" && _selectedType == "With Image") ||
+           (_selectedCategory == "Social" && _selectedType == "With Image"),
   child: ElevatedButton(
     style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(Colors.green)),
+      backgroundColor: MaterialStateProperty.all(Colors.green)
+    ),
     child: const Text(
       'Select Image from Gallery and Camera',
       style: TextStyle(color: Colors.white),
@@ -342,12 +346,6 @@ Visibility(
     },
   ),
 ),
-
-
-
-
-
-
 
 
 
@@ -367,11 +365,13 @@ Visibility(
     child: Column(
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.7, // Consider using full width for true centering if needed.
+          width: MediaQuery.of(context).size.width * 0.7, 
+          height: 40,// Consider using full width for true centering if needed.
           child: TextField(
-            controller: _descriptionController,
+            
+            controller: _titleofpostController,
             decoration: const InputDecoration(
-              hintText: "Write your content..",
+              hintText: "Write your Title..",
               border: InputBorder.none,
               // Centering the hint text as well.
             ),
@@ -379,6 +379,7 @@ Visibility(
             maxLines: 8,
           ),
         ),
+        
       ],
     ),
   ),
@@ -406,6 +407,7 @@ Visibility(
 
 
 
+
                   ),
 if (_selectedCategory == "Gourmet")
   Container(
@@ -426,7 +428,35 @@ if (_selectedCategory == "Gourmet")
   ),
           
             
-            
+            SizedBox(height: 20,),
+            Container(
+  decoration: BoxDecoration(
+    color: Colors.grey[200], // Set the background color to a shade of gray.
+    borderRadius: BorderRadius.circular(20), // Set the border radius.
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7, // Consider using full width for true centering if needed.
+          child: TextField(
+            controller: _contentController,
+            decoration: const InputDecoration(
+              hintText: "Write your Content..",
+              border: InputBorder.none,
+              // Centering the hint text as well.
+            ),
+            textAlign: TextAlign.center, // Centering the text that user enters.
+            maxLines: 8,
+          ),
+        ),
+       
+        
+      ],
+    ),
+  ),
+),
             
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,

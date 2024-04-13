@@ -41,7 +41,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       String apiKey = "AIzaSyDV7MPDpFXHRrSqvqAEg2JHSTHby60Wnig";
       String baseURL =
           "https://maps.googleapis.com/maps/api/place/autocomplete/json";
-      String components = "country:JP";
+      String components = "country:JP|country:KR";
       String request =
           "$baseURL?input=$input&key=$apiKey&sessiontoken=$_sessionToken&components=$components";
 

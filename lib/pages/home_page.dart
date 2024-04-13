@@ -108,6 +108,7 @@ class _HomePageState extends State<HomePage> {
           // Now you can directly use the email as the username
           return SocialPost(
             description: post['description'],
+            content: post['content'],
             user: email,  // Use the email as the user identifier
             time: DateFormat('yyyy-MM-dd – kk:mm').format((post['datePublished'] as Timestamp).toDate()),
             postId: postId,
