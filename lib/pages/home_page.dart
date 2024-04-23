@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uridachi/components/drawer.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/social_post.dart';
+import 'package:uridachi/components/text_post.dart';
 import 'package:uridachi/components/wallpost.dart';
 import 'package:uridachi/helper/helper_methods.dart';
 import 'package:uridachi/pages/auth_page.dart';
@@ -91,41 +92,54 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Expanded(
-              child: StreamBuilder(
-  stream: FirebaseFirestore.instance.collection("Social Posts").snapshots(),
-  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasData) {
-      return ListView.builder(
-        itemCount: snapshot.data!.docs.length,
-        itemBuilder: (context, index) {
-          var post = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-          var postId = snapshot.data!.docs[index].id;
-          
-          // Directly use the email from the post, assuming it's stored there
-          // Alternatively, use the email from the FirebaseAuth instance if the post data doesn't include it
-          var email = post['email'] ?? FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
-
-          // Now you can directly use the email as the username
-          return SocialPost(
-            description: post['description'],
-            content: post['content'],
-            user: email,  // Use the email as the user identifier
-            time: DateFormat('yyyy-MM-dd – kk:mm').format((post['datePublished'] as Timestamp).toDate()),
-            postId: postId,
-            likes: List<String>.from(post['likes'] ?? []),
-            imageUrls: List<String>.from(post['imageUrls'] ?? []),
-          );
-        },
-      );
-    } else if (snapshot.hasError) {
-      return Text('Error: ${snapshot.error}');
-    } else {
+              child: StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('Social Posts').orderBy('datePublished', descending: true).snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
       return Center(child: CircularProgressIndicator());
     }
+    if (snapshot.hasError) {
+      return Text("Something went wrong");
+    }
+    if (!snapshot.hasData) {
+      return Text("No data available");
+    }
+
+    return ListView.builder(
+  itemCount: snapshot.data!.docs.length,
+  itemBuilder: (context, index) {
+    var doc = snapshot.data!.docs[index];
+    var data = doc.data() as Map<String, dynamic>;
+
+    // Ensure the correct handling based on postType
+    if (data['postType'] == 'text') {
+      // TextPost expected parameters handled
+      return TextPost(
+        titleofpost: data['titleofpost'], // make sure the field name in Firestore matches 'titleofpost'
+        content: data['content'],
+        user: data['email'] ?? 'Unknown User',
+        time: DateFormat('kk:mm').format((data['datePublished'] as Timestamp).toDate()),
+        postId: doc.id,
+        likes: List<String>.from(data['likes']),
+      );
+    } else {
+      // SocialPost expected parameters handled
+      return SocialPost(
+        titleofpost: data['titleofpost'], // Same here for SocialPost
+        content: data['content'],
+        user: data['email'] ?? 'Unknown User',
+        time: DateFormat('kk:mm').format((data['datePublished'] as Timestamp).toDate()),
+        postId: doc.id,
+        likes: List<String>.from(data['likes']),
+        imageUrls: List<String>.from(data['imageUrls']),
+      );
+    }
   },
+);
 
+  },
+)
 
-),
 
 
             ),

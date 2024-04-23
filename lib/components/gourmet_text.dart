@@ -6,28 +6,25 @@ import 'package:uridachi/components/comment_button.dart';
 import 'package:uridachi/components/delete_button.dart';
 import 'package:uridachi/components/like_button.dart';
 import 'package:uridachi/components/send_button.dart';
+import 'package:uridachi/pages/chat_view_page.dart';
 import 'package:uridachi/screen/coment_screen.dart';
 import 'package:clay_containers/clay_containers.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 
 
 
 //where our posts are posted
-class SocialPost extends StatefulWidget {
+class GourmetText extends StatefulWidget {
     final String titleofpost;
     final String content;
     final String user;
     final String time;
     final String postId;
     final List<String> likes;
-    final List<String> imageUrls;
+    final double rating;
+    final String location;
 
-
-
-
-  const SocialPost({
+  
+  const GourmetText({
     super.key,
     required this.titleofpost,
     required this.content,
@@ -35,35 +32,28 @@ class SocialPost extends StatefulWidget {
     required this.time,
     required this.postId,
     required this.likes,
-    required this.imageUrls,
+    required this.rating,
+    required this.location,
  
 });
 
   @override
-  State<SocialPost> createState() => _SocialPostState();
+  State<GourmetText> createState() => _GourmetTextState();
 }
 
-class _SocialPostState extends State<SocialPost> {
+class _GourmetTextState extends State<GourmetText> {
   late List<String> likes;
   bool isLiked = false;
   final currentUser = FirebaseAuth.instance.currentUser!;
 
   final _commentTextController = TextEditingController();
-  bool isTranslating = false;
-
-  late String translatedTitle;
-  late String translatedContent;
 
   @override
   void initState () {
     super.initState();
     likes = List.from(widget.likes); // Initialize local likes list
     isLiked = likes.contains(currentUser.email);
-    translatedTitle = widget.titleofpost;
-    translatedContent = widget.content;
   }
-
- 
 
  void toggleLike() async {
     final userEmail = currentUser.email ?? "";
@@ -76,7 +66,7 @@ class _SocialPostState extends State<SocialPost> {
       }
     });
 
-    DocumentReference postRef = FirebaseFirestore.instance.collection('Social Posts').doc(widget.postId);
+    DocumentReference postRef = FirebaseFirestore.instance.collection('Gourmet Posts').doc(widget.postId);
 
     if (isLiked) {
       postRef.update({'Likes': FieldValue.arrayUnion([userEmail])});
@@ -89,7 +79,7 @@ class _SocialPostState extends State<SocialPost> {
   void addComment (String commentText) {
     //saving to firestore under "comments section"
     FirebaseFirestore.instance
-    .collection("Social Posts")
+    .collection("Gourmet Posts")
     .doc(widget.postId)
     .collection("comment")
     .add({
@@ -148,6 +138,7 @@ class _SocialPostState extends State<SocialPost> {
 
   void deletePost () {
     //show a dialog to confirm the delete process
+
     showDialog(
       context: context, 
       builder: (context) => AlertDialog(
@@ -159,12 +150,12 @@ class _SocialPostState extends State<SocialPost> {
           TextButton(onPressed: () async{
             //delete comment from firestore
             final commentDocs = await FirebaseFirestore.instance.
-            collection("Social Posts")
+            collection("Gourmet Posts")
             .doc(widget.postId)
             .collection("comment").get();
 
             for (var doc in commentDocs.docs) {
-              await FirebaseFirestore.instance.collection("Social Posts")
+              await FirebaseFirestore.instance.collection("Gourmet Posts")
               .doc(widget.postId)
               .collection("comment")
               .doc(doc.id)
@@ -173,7 +164,7 @@ class _SocialPostState extends State<SocialPost> {
 
 
             //delete post
-            FirebaseFirestore.instance.collection("Social Posts").doc(widget.postId)
+            FirebaseFirestore.instance.collection("Gourmet Posts").doc(widget.postId)
             .delete().then((value) => print("Post Deleted"))
             .catchError((error) => print("Failed to Delete : $error"));
 
@@ -189,6 +180,24 @@ class _SocialPostState extends State<SocialPost> {
 
 
   }
+
+
+  Future<Map<String, dynamic>?> fetchUserDetailsByEmail(String userEmail) async {
+  try {
+    var usersCollection = FirebaseFirestore.instance.collection('Users');
+    var querySnapshot = await usersCollection.where('email', isEqualTo: userEmail).limit(1).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      // Assuming 'username' and 'uid' are fields in your user documents
+      return querySnapshot.docs.first.data() as Map<String, dynamic>?;
+    } else {
+      return null; // User not found
+    }
+  } catch (e) {
+    print("Error fetching user details: $e");
+    return null;
+  }
+}
+
 
 
 
@@ -213,119 +222,103 @@ class _SocialPostState extends State<SocialPost> {
       ),
     ],
   ),
+          
+          
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+
+                                      const SizedBox(height: 10), 
 
 
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
+                         
+
+          
+                    
+                    const SizedBox(height: 25), 
+                    
+                    
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+          
+                    children: [
+                      
+                    
+                     Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
-                   Row(
-            children: [
-              if (widget.user == currentUser.email) 
-                    DeleteButton(onTap: deletePost),
-                  
-                  SizedBox(width: 65,),
-              
-              Text(
-                widget.time,
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-
-              SizedBox(width: 65,),
-
-
-            
-            
-            ],
-                  ),
-
-                  SizedBox(height: 15,),
-                  
-                  
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    
-                  
-                   Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-             
-            Container(
-  width: MediaQuery.of(context).size.width * 0.75, // Set the width to 65% of the screen width
-  child: Text(
-    widget.titleofpost,
-    style: TextStyle(fontSize: 20, color: Colors.green, fontWeight: FontWeight.bold),
-    textAlign: TextAlign.center, // Center align the text
-    maxLines: null, // Allow for any number of lines
-  ),
-),
-
-const SizedBox(height: 5),
-
-Container(
-  width: MediaQuery.of(context).size.width * 0.65, // Set the width to 65% of the screen width
-  child: Text(
-    widget.content,
-    style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 175, 175, 175)),
-    textAlign: TextAlign.center, // Center align the text
-    maxLines: null, // Allow for any number of lines
-  ),
-),
-
-                  
-                  const SizedBox(height: 10,),
-                 
-
-               
-            ],
-                  ),
-                  
-                  
-
-                    
-                  ],
-                ),
-
+          
                 
+          
+                   
+          
+          
+                    const SizedBox(height: 5,),
+               
+              Container(
+                    
+                    width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
+                    child: Text(
+              widget.titleofpost,
+              style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 0, 0, 0)),
+              maxLines: null, // Allow for any number of lines
+                    ),
+                    
+                    ),
+                    
+                    const SizedBox(height: 10,),
+          
+          
+          
+          
                   
-                const SizedBox(height: 20,),
-                  
-                  
-                if (widget.imageUrls.isNotEmpty)
-            Container(
-                  height: 170, 
-                  // Set a fixed height for the container
-                  child: ListView.builder(
-            scrollDirection: Axis.horizontal, // Make the list view scrollable horizontally
-            itemCount: widget.imageUrls.length, // The number of items in the list
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 8.0), // Add some spacing between images
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8), // Optional: Clip the images with a border radius
-                  child: Image.network(
-                    widget.imageUrls[index], // Load the image from the URL
-                    width: 200, // Set a fixed width for each image
-                    fit: BoxFit.cover, // Cover the bounds of the container
+          
+                    
+              ],
+                    ),
+                    
+                    
+                      if (widget.user == currentUser.email) 
+                      DeleteButton(onTap: deletePost)
+                    
+                    ],
                   ),
-                ),
-              );
-            },
-                  ),
+                    
+                  const SizedBox(height: 5,),
+                    
+                    
+     
+          
+          
+                    Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                widget.location, // Display location
+                style: TextStyle(fontSize: 13, color: const Color.fromARGB(255, 201, 201, 201)),
+              ),
             ),
-                  
-                  const SizedBox(height: 25), 
+          
+                     
+          
+          
+                 Padding(
+  padding: const EdgeInsets.only(top: 8.0),
+  child: Row(
+    children: [
+      Icon(Icons.star, color: Colors.amber),
+      Text('${widget.rating.toString()} / 5'), // Assuming rating is passed as a double
+    ],
+  ),
+),
 
-                  
-
-                  const SizedBox(height: 20,),
-                  
-               Row(
+                              const SizedBox(height: 15), 
+          
+                    
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
 
@@ -342,41 +335,31 @@ Container(
                     ),
 
 
-
-
-
                       const SizedBox(width: 30,),
 
-
-
-                      Row(
-                        
+                      Column(
                         children: [
-                          Column(
-                            children: [
+
                           
-                              
-                                              
-                              //like
-                              LikeButton(
-                                isLiked: isLiked, 
-                                onTap: toggleLike,
-                              ),
-                          
-                              
-                          
-                                              
-                            ],
+                    
+                          //like
+                          LikeButton(
+                            isLiked: isLiked, 
+                            onTap: toggleLike,
                           ),
-                                              
-                                              
-                          const SizedBox(width: 10,),
+                      
                           
-                          Column(
-                            children: [
-                             SendButton(postCreatorEmail: widget.user),
-                            ],
-                          ),
+                      
+                    
+                        ],
+                      ),
+                    
+                    
+                      const SizedBox(width: 10,),
+
+                      Column(
+                        children: [
+                         SendButton(postCreatorEmail: widget.user),
                         ],
                       ),
           
@@ -390,17 +373,19 @@ Container(
                  
                     ],
                   ),
-              
-                  
-                  
-                  
-                  
-                  
-              ],
+                    
+                
+                    
+                    
+                    
+                    
+                    
+                ],
+              ),
             ),
-          ),
-    ),
-    );
+              ),
+        );
+    
         
     
     

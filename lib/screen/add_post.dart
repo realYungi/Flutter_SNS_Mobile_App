@@ -116,19 +116,16 @@ Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPos
 Future<void> createPost() async {
   if (_titleofpostController.text.isNotEmpty && _auth.currentUser != null) {
     try {
-      // Define a variable to hold image URLs
       List<String> imageUrls = [];
+      String postType = "text"; // Default to text
 
-      // If the selectedType is "With Image", process and upload the images
       if (_selectedType == "With Image") {
-        // Convert File images to Uint8List
+        postType = "image";
         List<Uint8List> imageFiles = await Future.wait(selectedImages.map((file) => file.readAsBytes()).toList());
-        // Upload images and get their URLs
         StorageMethods storageMethods = StorageMethods();
         imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'posts');
       }
 
-      // Construct post data, conditionally include imageUrls based on selectedType
       Map<String, dynamic> postData = {
         'titleofpost': _titleofpostController.text,
         'content' : _contentController.text,
@@ -136,53 +133,11 @@ Future<void> createPost() async {
         'email': _auth.currentUser!.email,
         'datePublished': FieldValue.serverTimestamp(),
         'likes': [],
-        // Include image URLs only if there are any
-        if (imageUrls.isNotEmpty) 'imageUrls': imageUrls,
+        'imageUrls': imageUrls.isNotEmpty ? imageUrls : [],
+        'postType': postType,  // Include the postType in the data
       };
 
-      // Save the post data to Firestore
       await FirebaseFirestore.instance.collection("Social Posts").add(postData);
-      showSnackBar("Posted successfully!", context);
-
-      // Reset state
-      _titleofpostController.clear();
-      setState(() {
-        selectedImages.clear();
-        _files = null; // Ensure any selected file previews are also cleared
-      });
-    } catch (e) {
-      showSnackBar(e.toString(), context);
-    }
-  } else {
-    showSnackBar("Please enter a titleofpost and ensure you're logged in.", context);
-  }
-}
-
-
-
-Future<void> createGourmet() async {
-  if (_titleofpostController.text.isNotEmpty && _auth.currentUser != null && selectedImages.isNotEmpty) {
-    try {
-      StorageMethods storageMethods = StorageMethods();
-
-      List<String> imageUrls = [];
-      List<Uint8List> imageFiles = selectedImages.map((file) => File(file.path).readAsBytesSync()).toList();
-      imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet_posts');
-
-      // Construct post data, including the rating, image URLs, and location
-      Map<String, dynamic> postData = {
-        'titleofpost': _titleofpostController.text,
-        'content' : _contentController.text,
-        'uid': _auth.currentUser!.uid,
-        'email': _auth.currentUser!.email,
-        'imageUrls': imageUrls,
-        'datePublished': FieldValue.serverTimestamp(),
-        'likes': [],
-        'rating': _rating,
-        'location': _placeSearchController.text, // Save location from _placeSearchController
-      };
-
-      await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
       showSnackBar("Posted successfully!", context);
 
       _titleofpostController.clear();
@@ -194,9 +149,50 @@ Future<void> createGourmet() async {
       showSnackBar(e.toString(), context);
     }
   } else {
-    showSnackBar("Please select at least one image for a Gourmet post.", context);
+    showSnackBar("Please enter a title of post and ensure you're logged in.", context);
   }
 }
+
+
+
+Future<void> createGourmet() async {
+  if (_titleofpostController.text.isNotEmpty && _auth.currentUser != null) {
+    StorageMethods storageMethods = StorageMethods();
+    List<String> imageUrls = [];
+    String postType = "text"; // Default to text post
+
+    if (selectedImages.isNotEmpty) {
+      postType = "image"; // Change to image post if there are images
+      List<Uint8List> imageFiles = selectedImages.map((file) => File(file.path).readAsBytesSync()).toList();
+      imageUrls = await storageMethods.uploadMultipleImages(imageFiles, 'gourmet_posts');
+    }
+
+    Map<String, dynamic> postData = {
+      'titleofpost': _titleofpostController.text,
+      'content': _contentController.text,
+      'uid': _auth.currentUser!.uid,
+      'email': _auth.currentUser!.email,
+      'imageUrls': imageUrls,
+      'datePublished': FieldValue.serverTimestamp(),
+      'likes': [],
+      'rating': _rating,
+      'location': _placeSearchController.text,
+      'postType': postType  // Include postType in the document
+    };
+
+    await FirebaseFirestore.instance.collection("Gourmet Posts").add(postData);
+    showSnackBar("Posted successfully!", context);
+
+    _titleofpostController.clear();
+    setState(() {
+      selectedImages.clear();
+      _files = null;
+    });
+  } else {
+    showSnackBar("Please enter a title and ensure you're logged in.", context);
+  }
+}
+
 
 
 
@@ -273,7 +269,7 @@ void dispose() {
   margin: const EdgeInsets.only(top: 20, bottom: 10), // Add some margin at the top
   child: DropdownButtonFormField<String>(
     value: _selectedCategory,
-    hint: Text("Select a category"),
+    hint: Text("Category"),
     decoration: InputDecoration(
       border: InputBorder.none, // Remove the underline
     ),
@@ -302,7 +298,7 @@ void dispose() {
     margin: const EdgeInsets.only(top: 10, bottom: 10), // Add some margin at the top and bottom
     child: DropdownButtonFormField<String>(
       value: _selectedType,
-      hint: Text("Select type"),
+      hint: Text("Text or Image"),
       decoration: InputDecoration(
         border: InputBorder.none, // Remove the underline
       ),
@@ -366,12 +362,12 @@ Visibility(
       children: [
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.7, 
-          height: 40,// Consider using full width for true centering if needed.
+          height: 50,// Consider using full width for true centering if needed.
           child: TextField(
             
             controller: _titleofpostController,
             decoration: const InputDecoration(
-              hintText: "Write your Title..",
+              hintText: "Write your Title",
               border: InputBorder.none,
               // Centering the hint text as well.
             ),
@@ -409,24 +405,22 @@ Visibility(
 
 
                   ),
-if (_selectedCategory == "Gourmet")
-  Container(
-    decoration: BoxDecoration(
-      color: Colors.grey[200], // Set the background color to a shade of gray.
-      borderRadius: BorderRadius.circular(20), // Set the border radius.
-    ),
-    padding: const EdgeInsets.all(8.0),
-    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Match the margin as needed
-    child: Column(
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.7, // Consider using full width for true centering if needed.
-          child: CustomTextFormField(controller: _placeSearchController),
-        ),
-      ],
-    ),
-  ),
-          
+          if (_selectedCategory == "Gourmet")
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: _placeSearchController,
+                      decoration: InputDecoration(
+                        hintText: "Search Location",
+                        border: InputBorder.none,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
             
             SizedBox(height: 20,),
             Container(

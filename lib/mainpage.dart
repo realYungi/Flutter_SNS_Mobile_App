@@ -86,7 +86,8 @@ Widget build(BuildContext context) {
             label: 'メッセージ',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add_box_sharp),
+          
             label: 'アプロード',
           ),
           BottomNavigationBarItem(

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uridachi/components/drawer.dart';
+import 'package:uridachi/components/gourmet_text.dart';
 import 'package:uridachi/components/my_textfield.dart';
 import 'package:uridachi/components/gourmet_post.dart';
 import 'package:uridachi/components/wallpost.dart';
@@ -80,39 +81,53 @@ class _GourmetPageState extends State<GourmetPage> {
             Expanded(
               child: StreamBuilder(
   stream: FirebaseFirestore.instance.collection("Gourmet Posts").snapshots(),
-  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasData) {
-      return ListView.builder(
-        itemCount: snapshot.data!.docs.length,
-        itemBuilder: (context, index) {
-          var post = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-          var postId = snapshot.data!.docs[index].id;
-          
-          // Directly use the email from the post, assuming it's stored there
-          // Alternatively, use the email from the FirebaseAuth instance if the post data doesn't include it
-          var email = post['email'] ?? FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
+ builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  if (snapshot.hasData) {
+    return ListView.builder(
+      itemCount: snapshot.data!.docs.length,
+      itemBuilder: (context, index) {
+        var doc = snapshot.data!.docs[index];
+        var data = doc.data() as Map<String, dynamic>;
 
-          // Now you can directly use the email as the username
-          return GourmetPost(
-            description: post['description'],
-            user: email,  // Use the email as the user identifier
-            time: DateFormat('yyyy-MM-dd – kk:mm').format((post['datePublished'] as Timestamp).toDate()),
-            postId: postId,
-            likes: List<String>.from(post['likes'] ?? []),
-            imageUrls: List<String>.from(post['imageUrls'] ?? []),
-            rating: post['rating'].toDouble() ?? 0.0,
-            location: post['location'] ?? 'Unknown Location',
+        // Safe casting of dynamic list to List<String>
+        List<String> likes = List<String>.from(data['likes'] ?? []);
+        List<String> imageUrls = List<String>.from(data['imageUrls'] ?? []);
 
-            
+        if (data['postType'] == 'text') {
+          return GourmetText(
+            titleofpost: data['titleofpost'],
+            content: data['content'],
+            user: data['email'] ?? 'Unknown User',
+            time: DateFormat('kk:mm').format((data['datePublished'] as Timestamp).toDate()),
+            postId: doc.id,
+            likes: likes,
+            rating: (data['rating'] ?? 0.0).toDouble(),
+            location: data['location'] ?? 'Unknown Location',
           );
-        },
-      );
-    } else if (snapshot.hasError) {
-      return Text('Error: ${snapshot.error}');
-    } else {
-      return Center(child: CircularProgressIndicator());
-    }
-  },
+        } else {
+          return GourmetPost(
+            titleofpost: data['titleofpost'],
+            content: data['content'],
+            user: data['email'] ?? 'Unknown User',
+            time: DateFormat('kk:mm').format((data['datePublished'] as Timestamp).toDate()),
+            postId: doc.id,
+            likes: likes,
+            imageUrls: imageUrls,
+            rating: (data['rating'] ?? 0.0).toDouble(),
+            location: data['location'] ?? 'Unknown Location',
+          );
+        }
+      },
+    );
+  } else if (snapshot.hasError) {
+    return Text('Error: ${snapshot.error}');
+  } else {
+    return Center(child: CircularProgressIndicator());
+  }
+},
+
+  
+
 )
 
 

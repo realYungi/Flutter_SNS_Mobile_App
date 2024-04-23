@@ -14,7 +14,8 @@ import 'package:clay_containers/clay_containers.dart';
 
 //where our posts are posted
 class GourmetPost extends StatefulWidget {
-    final String description;
+    final String titleofpost;
+    final String content;
     final String user;
     final String time;
     final String postId;
@@ -26,7 +27,8 @@ class GourmetPost extends StatefulWidget {
   
   const GourmetPost({
     super.key,
-    required this.description,
+    required this.titleofpost,
+    required this.content,
     required this.user,
     required this.time,
     required this.postId,
@@ -286,15 +288,7 @@ class _GourmetPostState extends State<GourmetPost> {
           
                 
           
-                    Row(
-              children: [
-                
-                Text(
-                  widget.time,
-                  style: TextStyle(color: Colors.grey[400]),
-                ),
-              ],
-                    ),
+                   
           
           
                     const SizedBox(height: 5,),
@@ -303,7 +297,7 @@ class _GourmetPostState extends State<GourmetPost> {
                     
                     width: MediaQuery.of(context).size.width * 0.65, // Set the width to 80% of the screen width
                     child: Text(
-              widget.description,
+              widget.titleofpost,
               style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 0, 0, 0)),
               maxLines: null, // Allow for any number of lines
                     ),
